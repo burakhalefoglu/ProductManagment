@@ -3,11 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AlertifyService } from 'app/core/services/alertify.service';
-import { LookUpService } from 'app/core/services/lookUp.service';
-import { AuthService } from '../login/services/auth.service';
-import { OperationClaim } from './Models/OperationClaim';
-import { OperationClaimService } from './Services/OperationClaim.service';
+import { OperationClaim } from './models/operationclaim';
+import { OperationClaimService } from './services/operationclaim.service';
+import { LookUpService } from '../../../services/LookUp.service';
+import { AlertifyService } from '../../../services/Alertify.service';
+import { AuthService } from '../login/Services/Auth.service';
 
 
 declare var jQuery: any;
@@ -20,19 +20,23 @@ declare var jQuery: any;
 })
 export class OperationClaimComponent implements AfterViewInit, OnInit {
 
-	dataSource: MatTableDataSource<any>;
-	@ViewChild(MatPaginator) paginator: MatPaginator;
-	@ViewChild(MatSort) sort: MatSort;
+	dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
+	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	@ViewChild(MatSort) sort!: MatSort;
 	displayedColumns: string[] = ['id', 'name', 'alias', 'description', 'update'];
 
-	operationClaimList: OperationClaim[];
+	operationClaimList!: OperationClaim[];
 	operationClaim: OperationClaim = new OperationClaim();
 
-	operationClaimAddForm: FormGroup;
+	operationClaimAddForm!: FormGroup;
 
-	operationClaimId: number;
+	operationClaimId!: number;
 
-	constructor(private operationClaimService: OperationClaimService, private lookupService: LookUpService, private alertifyService: AlertifyService, private formBuilder: FormBuilder, private authService: AuthService) { }
+	constructor(private operationClaimService: OperationClaimService,
+		private lookupService: LookUpService,
+		private alertifyService: AlertifyService,
+		private formBuilder: FormBuilder,
+		private authService: AuthService) { }
 	ngAfterViewInit(): void {
 		this.getOperationClaimList();
 	}
@@ -95,9 +99,13 @@ export class OperationClaimComponent implements AfterViewInit, OnInit {
 		group.reset();
 
 		Object.keys(group.controls).forEach(key => {
-			group.get(key).setErrors(null);
-			if (key == 'id')
-				group.get(key).setValue(0);
+			const control = group.get(key);
+			if (control) {
+				control.setErrors(null);
+				if (key == 'id') {
+					control.setValue(0);
+				}
+			}
 		});
 	}
 

@@ -1,14 +1,14 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../login/services/auth.service';
 import { CustomTranslateService } from './services/custom_translate.service';
-import { LookUpService } from 'app/core/services/lookUp.service';
-import { AlertifyService } from 'app/core/services/alertify.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { LookUp } from 'app/core/models/lookUp';
 import { Translate } from './models/translate';
+import { LookUp } from '../../../models/LookUp';
+import { LookUpService } from '../../../services/LookUp.service';
+import { AlertifyService } from '../../../services/Alertify.service';
+import { AuthService } from '../login/Services/Auth.service';
 
 
 declare let jQuery: any;
@@ -21,23 +21,27 @@ declare let jQuery: any;
 })
 export class TranslateComponent implements  AfterViewInit, OnInit {
 
-	@ViewChild(MatPaginator) paginator: MatPaginator;
-	@ViewChild(MatSort) sort: MatSort;
+	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	@ViewChild(MatSort) sort!: MatSort;
 
 	translateList: Translate[] = [];
 	translate: Translate = new Translate();
 
-	translateAddForm: FormGroup;
+	translateAddForm!: FormGroup;
 
-	langugelookUp: LookUp[];
+	langugelookUp!: LookUp[];
 	displayedColumns: string[] = ['id', 'language', 'code', 'value','update','delete'];
-	dataSource: MatTableDataSource<any>;
+	dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
 
 
-	translateId: number;
+	translateId!: number;
 
 
-	constructor(private translateService: CustomTranslateService, private lookupService: LookUpService, private alertifyService: AlertifyService, private formBuilder: FormBuilder, private authService: AuthService) { }
+	constructor(private translateService: CustomTranslateService,
+		private lookupService: LookUpService,
+		private alertifyService: AlertifyService,
+		private formBuilder: FormBuilder,
+		private authService: AuthService) { }
 
 	ngAfterViewInit(): void {
 
@@ -148,9 +152,12 @@ export class TranslateComponent implements  AfterViewInit, OnInit {
 		group.reset();
 
 		Object.keys(group.controls).forEach(key => {
-			group.get(key).setErrors(null);
-			if (key == 'id')
-				group.get(key).setValue(0);
+			const control = group.get(key);
+			if (control) {
+				control.setErrors(null);
+				if (key == 'id')
+					control.setValue(0);
+			}
 		});
 	}
 

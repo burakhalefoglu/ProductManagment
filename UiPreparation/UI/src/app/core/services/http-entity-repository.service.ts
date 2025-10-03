@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs/internal/Observable";
-import { environment } from "environments/environment";
+import { environment } from "../../../environments/environment";
 
 //If the token is sent with interception, there is no need to send header information here, 
 //but if the token information does not go in the request header with interception, it must be sent with a method in this class.

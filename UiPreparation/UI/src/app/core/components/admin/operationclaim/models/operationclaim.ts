@@ -1,7 +1,7 @@
 ﻿export class OperationClaim {
-    id: number;
-    name:string;
-    alias: string;
-    description: string;
+    id!: number;
+    name!:string;
+    alias!: string;
+    description!: string;
 
 }

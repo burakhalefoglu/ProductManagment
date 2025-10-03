@@ -15,9 +15,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { LoginComponent } from 'app/core/components/admin/login/login.component';
-import { GroupComponent } from 'app/core/components/admin/group/group.component';
-import { UserComponent } from 'app/core/components/admin/user/user.component';
 import { TranslateLoader, TranslateModule, TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { LanguageComponent } from '../components/admin/language/language.component';
@@ -26,7 +23,10 @@ import { OperationClaimComponent } from '../components/admin/operationclaim/oper
 import { LogDtoComponent } from '../components/admin/log/logDto.component';
 import { MatSortModule } from '@angular/material/sort';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
-import { TranslationService } from '../services/translation.service';
+import { TranslationService } from '../services/Translation.service';
+import { UserComponent } from '../components/admin/user/user.component';
+import { LoginComponent } from '../components/admin/login/login.component';
+import { GroupComponent } from '../components/admin/group/group.component';
 
 
 // export function layoutHttpLoaderFactory(http: HttpClient) {

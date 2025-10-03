@@ -1,5 +1,5 @@
 export class PasswordDto
 {
-    userId:number;
-    password:string;
+    userId?:number;
+    password?:string;
 }

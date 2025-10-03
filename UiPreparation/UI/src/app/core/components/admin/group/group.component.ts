@@ -3,14 +3,15 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { LookUp } from 'app/core/models/lookUp';
-import { AlertifyService } from 'app/core/services/alertify.service';
-import { LookUpService } from 'app/core/services/lookUp.service';
-import { environment } from 'environments/environment';
+
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
-import { AuthService } from '../login/services/auth.service';
-import { Group } from './models/group';
-import { GroupService } from './services/group.service';
+import { Group } from './Models/Group';
+import { GroupService } from './Services/Group.service';
+import { LookUp } from '../../../models/LookUp';
+import { environment } from '../../../../../environments/environment';
+import { LookUpService } from '../../../services/LookUp.service';
+import { AlertifyService } from '../../../services/Alertify.service';
+import { AuthService } from '../login/Services/Auth.service';
 
 
 declare var jQuery: any;
@@ -23,30 +24,34 @@ declare var jQuery: any;
 })
 export class GroupComponent implements AfterViewInit, OnInit {
 
-  dataSource: MatTableDataSource<any>;
-	@ViewChild(MatPaginator) paginator: MatPaginator;
-	@ViewChild(MatSort) sort: MatSort;
+  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
+	@ViewChild(MatPaginator) paginator!: MatPaginator;
+	@ViewChild(MatSort) sort!: MatSort;
 	displayedColumns: string[] = ["id","groupName","updateGroupClaim","updateUserGroupClaims","update","delete"];
   
-  userDropdownList:LookUp[];
-  userSelectedItems:LookUp[];
+  userDropdownList!:LookUp[];
+  userSelectedItems!:LookUp[];
 
-  claimDropdownList:LookUp[];
-  claimSelectedItems:LookUp[];
+  claimDropdownList!:LookUp[];
+  claimSelectedItems!:LookUp[];
 
-  dropdownSettings: IDropdownSettings;
+  dropdownSettings!: IDropdownSettings;
 
-  groupList:Group[];
+  groupList!:Group[];
   group:Group=new Group();
 
-  groupAddForm: FormGroup;
+  groupAddForm!: FormGroup;
 
   isUserChange: boolean = false;
   isClaimChange: boolean = false;
 
-  groupId:number;
+  groupId!:number;
 
-  constructor(private groupService:GroupService, private lookupService:LookUpService,private alertifyService:AlertifyService,private formBuilder: FormBuilder, private authService:AuthService) { }
+  constructor(private groupService:GroupService,
+    private lookupService:LookUpService,
+    private alertifyService:AlertifyService,
+    private formBuilder: FormBuilder,
+    private authService:AuthService) { }
 
   
   ngAfterViewInit(): void {
@@ -60,11 +65,11 @@ export class GroupComponent implements AfterViewInit, OnInit {
 
     this.dropdownSettings=environment.getDropDownSetting;
 
-      this.lookupService.getOperationClaimLookUp().subscribe(data=>{
+      this.lookupService.getOperationClaimLookUp().subscribe((data: LookUp[])=>{
         this.claimDropdownList=data;
       });
 
-     this.lookupService.getUserLookUp().subscribe(data=>{
+     this.lookupService.getUserLookUp().subscribe((data: LookUp[])=>{
        this.userDropdownList=data;
      });
   }
@@ -216,9 +221,12 @@ export class GroupComponent implements AfterViewInit, OnInit {
     group.reset();
 
     Object.keys(group.controls).forEach(key => {
-      group.get(key).setErrors(null);
-      if (key == "id")
-        group.get(key).setValue(0);
+      const control = group.get(key);
+      if (control) {
+        control.setErrors(null);
+        if (key == "id")
+          control.setValue(0);
+      }
     });
   }
 

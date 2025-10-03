@@ -4,9 +4,9 @@ import 'rxjs/add/operator/filter';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import PerfectScrollbar from 'perfect-scrollbar';
-import * as $ from "jquery";
-import { AuthService } from 'app/core/components/admin/login/services/auth.service';
+import $ from "jquery";
 import { TranslateService } from '@ngx-translate/core';
+import { AuthService } from '../../../admin/login/Services/Auth.service';
 
 
 @Component({
@@ -16,13 +16,15 @@ import { TranslateService } from '@ngx-translate/core';
     standalone: false
 })
 export class AdminLayoutComponent implements OnInit {
-    private _router: Subscription;
-    private lastPoppedUrl: string;
+    private _router!: Subscription;
+    private lastPoppedUrl!: string | undefined;
     private yScrollStack: number[] = [];
 
 
-    constructor(public location: Location, private router: Router, private authService: AuthService ,public translate: TranslateService ) {
-               
+    constructor(public location: Location,
+        private router: Router,
+        private authService: AuthService,
+        public translate: TranslateService ) {
             this.translate.setDefaultLang("tr-TR");
             this.translate.use('tr-TR')         
     }
@@ -59,7 +61,7 @@ export class AdminLayoutComponent implements OnInit {
                 } else if (event instanceof NavigationEnd) {
                     if (event.url == this.lastPoppedUrl) {
                         this.lastPoppedUrl = undefined;
-                        window.scrollTo(0, this.yScrollStack.pop());
+                        window.scrollTo(0, this.yScrollStack.pop() ?? 0);
                     } else
                         window.scrollTo(0, 0);
                 }
@@ -68,12 +70,12 @@ export class AdminLayoutComponent implements OnInit {
                 elemMainPanel.scrollTop = 0;
                 elemSidebar.scrollTop = 0;
             });
-             if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
-                 let ps = new PerfectScrollbar(elemMainPanel);
-                 ps = new PerfectScrollbar(elemSidebar);
-             }
+            if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
+                let ps = new PerfectScrollbar(elemMainPanel);
+                ps = new PerfectScrollbar(elemSidebar);
+            }
 
-            const window_width = $(window).width();
+            const window_width = $(window).width() ?? 0;
             let $sidebar = $('.sidebar');
             let $sidebar_responsive = $('body > .navbar-collapse');
             let $sidebar_img_container = $sidebar.find('.sidebar-background');
@@ -149,7 +151,7 @@ export class AdminLayoutComponent implements OnInit {
     ngAfterViewInit() {
         this.runOnRouteChange();
     }
-    isMaps(path) {
+    isMaps(path: string) {
         var titlee = this.location.prepareExternalUrl(this.location.path());
         titlee = titlee.slice(1);
         if (path == titlee) {

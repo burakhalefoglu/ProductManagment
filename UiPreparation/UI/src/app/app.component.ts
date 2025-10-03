@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { NavigationStart, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs/Rx";
-import { AuthService } from "./core/components/admin/login/services/auth.service";
+import { AuthService } from "./core/components/admin/login/Services/Auth.service";
 
 export let browserRefresh = false;
 
@@ -14,8 +14,8 @@ export let browserRefresh = false;
 })
 export class AppComponent  {
 
-  subscription: Subscription;
-  isRefresh:boolean;
+  subscription!: Subscription;
+  isRefresh!:boolean;
 
   constructor(
     private translate: TranslateService,

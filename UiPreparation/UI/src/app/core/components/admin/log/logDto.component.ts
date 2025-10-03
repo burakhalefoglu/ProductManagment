@@ -1,14 +1,14 @@
 import { Component, OnInit,AfterViewInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AlertifyService } from 'app/core/services/alertify.service';
-import { LookUpService } from 'app/core/services/lookUp.service';
-import { AuthService } from 'app/core/components/admin/login/services/auth.service';
-import { LogDto } from './models/LogDto';
-import { LogDtoService } from './services/LogDto.service';
 import { Subject } from 'rxjs/Rx';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { LogDto } from './models/logdto';
+import { LogDtoService } from './services/logdto.service';
+import { LookUpService } from '../../../services/LookUp.service';
+import { AlertifyService } from '../../../services/Alertify.service';
+import { AuthService } from '../login/Services/Auth.service';
 
 
 declare var jQuery: any;
@@ -21,21 +21,25 @@ declare var jQuery: any;
 })
 export class LogDtoComponent implements AfterViewInit, OnInit {
 
-	dataSource: MatTableDataSource<any>;
-	@ViewChild(MatPaginator) paginator: MatPaginator;
-	@ViewChild(MatSort) sort: MatSort;
+	dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
+	@ViewChild(MatPaginator) paginator?: MatPaginator;
+	@ViewChild(MatSort) sort?: MatSort;
 	displayedColumns: string[] = ['id', 'level', 'exceptionMessage','timeStamp','user','value','type'];	
 
 
-	logDtoList: LogDto[];
+	logDtoList?: LogDto[];
 	logDto: LogDto = new LogDto();
 
-	logDtoAddForm: FormGroup;
+	logDtoAddForm?: FormGroup;
 
-	logDtoId: number;
+	logDtoId?: number;
 	dtTrigger: Subject<any> = new Subject<any>();
 
-	constructor(private logDtoService: LogDtoService, private lookupService: LookUpService, private alertifyService: AlertifyService, private formBuilder: FormBuilder, private authService: AuthService) { }
+	constructor(private logDtoService: LogDtoService,
+		private lookupService: LookUpService,
+		private alertifyService: AlertifyService,
+		private formBuilder: FormBuilder,
+		private authService: AuthService) { }
 
 	ngOnInit() {
 
@@ -64,9 +68,13 @@ export class LogDtoComponent implements AfterViewInit, OnInit {
 		group.reset();
 
 		Object.keys(group.controls).forEach(key => {
-			group.get(key).setErrors(null);
-			if (key == 'id')
-				group.get(key).setValue(0);
+			const control = group.get(key);
+			if (control) {
+				control.setErrors(null);
+				if (key == 'id') {
+					control.setValue(0);
+				}
+			}
 		});
 	}
 
@@ -75,16 +83,19 @@ export class LogDtoComponent implements AfterViewInit, OnInit {
 	}
 
 	configDataTable(): void {
-		this.dataSource.paginator = this.paginator;
-		this.dataSource.sort = this.sort;
-	
+		if (this.dataSource) {
+			this.dataSource.paginator = this.paginator ?? null;
+			this.dataSource.sort = this.sort ?? null;
+		}
 	  }
 
 	  applyFilter(event: Event) {
 		const filterValue = (event.target as HTMLInputElement).value;
-		this.dataSource.filter = filterValue.trim().toLowerCase();
+		if (this.dataSource) {
+			this.dataSource.filter = filterValue.trim().toLowerCase();
+		}
 
-		if (this.dataSource.paginator) {
+		if (this.dataSource && this.dataSource.paginator) {
 			this.dataSource.paginator.firstPage();
 		}
 	}

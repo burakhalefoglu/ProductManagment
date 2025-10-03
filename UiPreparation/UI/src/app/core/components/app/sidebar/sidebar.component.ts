@@ -2,7 +2,7 @@ import { HostListener } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../admin/login/services/auth.service';
+import { AuthService } from '../../admin/login/Services/Auth.service';
 
 
 declare const $: any;
@@ -33,10 +33,12 @@ export const USERROUTES: RouteInfo[] = [
     standalone: false
 })
 export class SidebarComponent implements OnInit {
-  adminMenuItems: any[];
-  userMenuItems: any[];
+  adminMenuItems!: any[];
+  userMenuItems!: any[];
 
-  constructor(private router:Router, private authService:AuthService,public translateService:TranslateService) {
+  constructor(private router:Router,
+    private authService:AuthService,
+    public translateService:TranslateService) {
     
   }
 

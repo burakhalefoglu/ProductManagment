@@ -1,5 +1,5 @@
 export class LookUp
 {
     id:any;
-    label:string;
+    label:string | undefined;
 }

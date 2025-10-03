@@ -1,6 +1,6 @@
 ﻿export class Language{
     id?:number; 
-    name:string; 
-    code:string; 
+    name?:string; 
+    code?:string; 
 
 }

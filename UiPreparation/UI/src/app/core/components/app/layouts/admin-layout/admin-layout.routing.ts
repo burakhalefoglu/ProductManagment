@@ -1,16 +1,13 @@
 import { Routes } from '@angular/router';
-import { GroupComponent } from 'app/core/components/admin/group/group.component';
-import { LanguageComponent } from 'app/core/components/admin/language/language.component';
-import { LogDtoComponent } from 'app/core/components/admin/log/logDto.component';
-import { LoginComponent } from 'app/core/components/admin/login/login.component';
-import { OperationClaimComponent } from 'app/core/components/admin/operationclaim/operationClaim.component';
-import { TranslateComponent } from 'app/core/components/admin/translate/translate.component';
-import { UserComponent } from 'app/core/components/admin/user/user.component';
-import { LoginGuard } from 'app/core/guards/login-guard';
 import { DashboardComponent } from '../../dashboard/dashboard.component';
-
-
-
+import { LoginGuard } from '../../../../guards/login-guard';
+import { UserComponent } from '../../../admin/user/user.component';
+import { GroupComponent } from '../../../admin/group/group.component';
+import { LoginComponent } from '../../../admin/login/login.component';
+import { LanguageComponent } from '../../../admin/language/language.component';
+import { TranslateComponent } from '../../../admin/translate/translate.component';
+import { OperationClaimComponent } from '../../../admin/operationclaim/operationClaim.component';
+import { LogDtoComponent } from '../../../admin/log/logDto.component';
 
 
 export const AdminLayoutRoutes: Routes = [

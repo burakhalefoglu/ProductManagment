@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LookUp } from 'app/core/models/lookUp';
-import { LocalStorageService } from 'app/core/services/local-storage.service';
-import { LookUpService } from 'app/core/services/lookUp.service';
-import { environment } from 'environments/environment';
 import { LoginUser } from './model/login-user';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './Services/Auth.service';
+import { LocalStorageService } from '../../../services/local-storage.service';
+import { LookUpService } from '../../../services/LookUp.service';
+import { LookUp } from '../../../models/LookUp';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
     selector: 'app-login',
@@ -18,7 +18,7 @@ export class LoginComponent implements OnInit {
 
   username:string="";
   loginUser:LoginUser=new LoginUser();
-  langugelookUp:LookUp[];
+  langugelookUp!:LookUp[];
 
 
   constructor(private auth:AuthService,
@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
 
-    this.username=this.auth.userName;
+    this.username = this.auth.userName ?? "";
     this.httpClient.get<LookUp[]>(environment.getApiUrl +"/languages/codes").subscribe(data=>{
       this.langugelookUp=data;
     })
@@ -49,9 +49,9 @@ export class LoginComponent implements OnInit {
       this.storageService.removeItem("lang");
   }
 
-  changeLang(lang){
-    localStorage.setItem("lang",lang);
-    this.translateService.use(lang);
+  changeLang(lang: string | undefined){
+    localStorage.setItem("lang",lang ?? "tr-TR");
+    this.translateService.use(lang ?? "tr-TR");
   }
 
 }

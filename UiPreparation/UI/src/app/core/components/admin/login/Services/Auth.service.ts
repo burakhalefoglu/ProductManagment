@@ -2,12 +2,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { AlertifyService } from 'app/core/services/alertify.service';
-import { LocalStorageService } from 'app/core/services/local-storage.service';
-import { environment } from 'environments/environment';
 import { LoginUser } from '../model/login-user';
 import { TokenModel } from '../model/token-model';
-import { SharedService } from 'app/core/services/shared.service';
+import { LocalStorageService } from '../../../../services/local-storage.service';
+import { AlertifyService } from '../../../../services/Alertify.service';
+import { SharedService } from '../../../../services/shared.service';
+import { environment } from '../../../../../../environments/environment';
 
 
 @Injectable({
@@ -16,12 +16,12 @@ import { SharedService } from 'app/core/services/shared.service';
 
 export class AuthService {
 
-  userName: string;
-  isLoggin: boolean;
+  userName?: string;
+  isLoggin?: boolean;
   decodedToken: any;
-  userToken: string;
+  userToken?: string;
   jwtHelper: JwtHelperService = new JwtHelperService();
-  claims: string[];
+  claims?: string[];
 
   constructor(private httpClient: HttpClient, private storageService: LocalStorageService,
     private router: Router, private alertifyService:AlertifyService,private sharedService:SharedService) {
@@ -37,15 +37,13 @@ export class AuthService {
     this.httpClient.post<TokenModel>(environment.getApiUrl + "/Auth/login", loginUser, { headers: headers }).subscribe(data => {
 
 
-      if (data.success) {
+      if (data.success && data.data && data.data.token && data.data.refreshToken && data.data.claims) {
 
         this.storageService.setToken(data.data.token);
-        this.storageService.setItem("refreshToken",data.data.refreshToken)
-        this.claims=data.data.claims;
+        this.storageService.setItem("refreshToken", data.data.refreshToken);
+        this.claims = data.data.claims;
 
-
-         var decode = this.jwtHelper.decodeToken(this.storageService.getToken());
-
+        var decode = this.jwtHelper.decodeToken(this.storageService.getToken());
 
         var propUserName = Object.keys(decode).filter(x => x.endsWith("/name"))[0];
         this.userName = decode[propUserName];
@@ -54,14 +52,14 @@ export class AuthService {
         this.router.navigateByUrl("/dashboard");
       }
       else {
-        this.alertifyService.warning(data.message);
+        this.alertifyService.warning(data.message || "Login failed: Invalid response from server.");
       }
 
     }
     );
   }
   getUserName(): string {
-    return this.userName;
+    return this.userName ?? "";
   }
 
   setClaims() {
@@ -102,7 +100,7 @@ export class AuthService {
     if(!this.loggedIn())
      this.router.navigate(["/login"]);
     
-    var check = this.claims.some(function (item) {
+    var check = (this.claims ?? []).some(function (item) {
       return item == claim;
     })
 

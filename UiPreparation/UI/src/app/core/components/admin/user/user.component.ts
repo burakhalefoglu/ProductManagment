@@ -1,24 +1,23 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
   OnInit,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { User } from "./models/user";
-import { UserService } from "./services/user.service";
 import { IDropdownSettings } from "ng-multiselect-dropdown";
-import { LookUp } from "app/core/models/lookUp";
-import { AlertifyService } from "app/core/services/alertify.service";
-import { LookUpService } from "app/core/services/lookUp.service";
-import { AuthService } from "../login/services/auth.service";
-import { MustMatch } from "app/core/directives/must-match";
 import { PasswordDto } from "./models/passwordDto";
-import { environment } from "environments/environment";
 import { MatSort } from "@angular/material/sort";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource } from "@angular/material/table";
+import { User } from "./models/User";
+import { LookUp } from "../../../models/LookUp";
+import { UserService } from "./Services/User.service";
+import { LookUpService } from "../../../services/LookUp.service";
+import { AlertifyService } from "../../../services/Alertify.service";
+import { AuthService } from "../login/Services/Auth.service";
+import { environment } from "../../../../../environments/environment";
+import { MustMatch } from "../../../directives/must-match";
 
 declare var jQuery: any;
 
@@ -29,9 +28,9 @@ declare var jQuery: any;
     standalone: false
 })
 export class UserComponent implements AfterViewInit, OnInit {
-  dataSource: MatTableDataSource<any>;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [
     "userId",
     "email",
@@ -47,19 +46,19 @@ export class UserComponent implements AfterViewInit, OnInit {
     "delete",
   ];
 
-  user: User;
-  userList: User[];
-  groupDropdownList: LookUp[];
-  groupSelectedItems: LookUp[];
-  dropdownSettings: IDropdownSettings;
+  user!: User;
+  userList!: User[];
+  groupDropdownList!: LookUp[];
+  groupSelectedItems!: LookUp[];
+  dropdownSettings!: IDropdownSettings;
 
-  claimDropdownList: LookUp[];
-  claimSelectedItems: LookUp[];
+  claimDropdownList!: LookUp[];
+  claimSelectedItems!: LookUp[];
 
   isGroupChange: boolean = false;
   isClaimChange: boolean = false;
 
-  userId: number;
+  userId!: number;
 
   constructor(
     private userService: UserService,
@@ -73,8 +72,8 @@ export class UserComponent implements AfterViewInit, OnInit {
     this.getUserList();
   }
 
-  userAddForm: FormGroup;
-  passwordForm: FormGroup;
+  userAddForm!: FormGroup;
+  passwordForm!: FormGroup;
 
   ngOnInit() {
     this.createUserAddForm();
@@ -198,9 +197,12 @@ export class UserComponent implements AfterViewInit, OnInit {
     group.reset();
 
     Object.keys(group.controls).forEach((key) => {
-      group.get(key).setErrors(null);
-      if (key == "userId") group.get(key).setValue(0);
-      else if (key == "status") group.get(key).setValue(true);
+      const control = group.get(key);
+      if (control) {
+        control.setErrors(null);
+        if (key == "userId") control.setValue(0);
+        else if (key == "status") control.setValue(true);
+      }
     });
   }
 

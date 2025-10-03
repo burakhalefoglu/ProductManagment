@@ -11,14 +11,13 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": {
-              "base": "dist"
-            },
+            "outputPath": "dist/material-dashboard-angular",
             "index": "src/index.html",
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": [
               "src/polyfills.ts"
             ],
+            "main": "src/main.ts", 
             "assets": [
               "src/assets",
               "src/favicon.ico"
@@ -52,21 +51,11 @@
               "node_modules/bootstrap-select/dist/js/i18n/defaults-tr_TR.js"
             ],
             "allowedCommonJsDependencies": [
-              "rxjs/add/operator/filter",
               "jquery",
               "chartist",
-              "rxjs-compat",
-              "rxjs/Rx",
               "sweetalert2",
-              "url"
-
-            ],
-            "aot": false,
-            "extractLicenses": false,
-            "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true,
-            "browser": "src/main.ts"
+              "url" 
+            ]
           },
           "configurations": {
             "production": {
@@ -74,7 +63,6 @@
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "fileReplacements": [
                 {
@@ -82,32 +70,26 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
           },
-          "defaultConfiguration": ""
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
+          "defaultConfiguration": "development" 
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "material-dashboard-angular:build"
-          },
           "configurations": {
             "production": {
               "buildTarget": "material-dashboard-angular:build:production"
+            },
+            "development": {
+              "buildTarget": "material-dashboard-angular:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -120,7 +102,6 @@
           "options": {
             "main": "src/test.ts",
             "karmaConfig": "./karma.conf.js",
-            "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
               "node_modules/jquery/dist/jquery.js",
@@ -145,29 +126,6 @@
           }
         }
       }
-    },
-    "material-dashboard-angular-e2e": {
-      "root": "",
-      "sourceRoot": "",
-      "projectType": "application",
-      "architect": {
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "material-dashboard-angular:serve"
-          }
-        }
-      }
-    }
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "prefix": "app",
-      "styleext": "scss"
-    },
-    "@schematics/angular:directive": {
-      "prefix": "app"
     }
   },
   "cli": {

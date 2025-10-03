@@ -1,10 +1,8 @@
 ﻿import { Injectable } from '@angular/core';
-import { ApiUrl } from 'app/core/constants/api-url';
-import { HttpEntityRepositoryService } from 'app/core/services/http-entity-repository.service';
 import { Observable } from 'rxjs';
-import { Language } from '../Models/Language';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'environments/environment';
+import { environment } from '../../../../../../environments/environment';
+import { Language } from '../models/language';
 
 
 @Injectable({
@@ -12,8 +10,7 @@ import { environment } from 'environments/environment';
 })
 export class LanguageService {
 
-  constructor(private service: HttpEntityRepositoryService<any>,
-    private readonly _httpClient: HttpClient) { }
+  constructor(private readonly _httpClient: HttpClient) { }
 
   getLanguageList(): Observable<Language[]> {
     return this._httpClient.get<Language[]>(environment.getApiUrl +'/languages/');

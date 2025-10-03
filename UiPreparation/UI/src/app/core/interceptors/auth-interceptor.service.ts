@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from "rxjs";
 import { catchError,filter,switchMap, take } from 'rxjs/operators';
-import { TokenService } from '../components/admin/login/services/token.service';
+import { TokenService } from '../components/admin/login/Services/token.service';
 
 
 @Injectable()
@@ -50,7 +50,7 @@ export class AuthInterceptorService implements HttpInterceptor {
       this.isRefreshing=true;
       this.refreshTokenSubject.next(null);
 
-      return this.tokenService.refreshToken().pipe(
+      return (this.tokenService?.refreshToken?.() ?? throwError(() => new Error('TokenService is undefined'))).pipe(
        switchMap((token:any) => {
          console.log("Token Yenilendi.")
          this.isRefreshing = false;

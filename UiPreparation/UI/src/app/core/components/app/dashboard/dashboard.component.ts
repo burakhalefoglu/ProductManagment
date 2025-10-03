@@ -10,13 +10,13 @@ import * as Chartist from 'chartist';
 export class DashboardComponent implements OnInit {
 
   constructor() { }
-  startAnimationForLineChart(chart){
+  startAnimationForLineChart(chart: Chartist.IChartistLineChart){
       let seq: any, delays: any, durations: any;
       seq = 0;
       delays = 80;
       durations = 500;
 
-      chart.on('draw', function(data) {
+      chart.on('draw', function(data: { type: string; element: { animate: (arg0: { d?: { begin: number; dur: number; from: any; to: any; easing: Chartist.IChartistEasingDefinition; }; opacity?: { begin: number; dur: any; from: number; to: number; easing: string; }; }) => void; }; path: { clone: () => { (): any; new(): any; scale: { (arg0: number, arg1: number): { (): any; new(): any; translate: { (arg0: number, arg1: any): { (): any; new(): any; stringify: { (): any; new(): any; }; }; new(): any; }; }; new(): any; }; stringify: { (): any; new(): any; }; }; }; chartRect: { height: () => any; }; }) {
         if(data.type === 'line' || data.type === 'area') {
           data.element.animate({
             d: {
@@ -43,13 +43,13 @@ export class DashboardComponent implements OnInit {
 
       seq = 0;
   };
-  startAnimationForBarChart(chart){
+  startAnimationForBarChart(chart: Chartist.IChartistBarChart){
       let seq2: any, delays2: any, durations2: any;
 
       seq2 = 0;
       delays2 = 80;
       durations2 = 500;
-      chart.on('draw', function(data) {
+      chart.on('draw', function(data: { type: string; element: { animate: (arg0: { opacity: { begin: number; dur: any; from: number; to: number; easing: string; }; }) => void; }; }) {
         if(data.type === 'bar'){
             seq2++;
             data.element.animate({
@@ -136,7 +136,7 @@ export class DashboardComponent implements OnInit {
         ['screen and (max-width: 640px)', {
           seriesBarDistance: 5,
           axisX: {
-            labelInterpolationFnc: function (value) {
+            labelInterpolationFnc: function (value: any[]) {
               return value[0];
             }
           }

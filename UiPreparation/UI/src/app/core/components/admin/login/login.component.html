@@ -26,8 +26,12 @@
               </div>
               <div class="row">
                 <div class="col-md-12">
-                  <select class="browser-default custom-select" placeholder="Seçiniz" name="lang" [(ngModel)]="loginUser.lang" (change)="changeLang($event.target.value)">
-                    <option *ngFor="let item of langugelookUp" [value]="item.id"> {{item.label}}</option>
+                <select class="browser-default custom-select" 
+                placeholder="Seçiniz" 
+                name="lang" 
+                [(ngModel)]="loginUser.lang" 
+                (change)="changeLang(loginUser.lang)">
+                <option *ngFor="let item of langugelookUp" [value]="item.id"> {{item.label}}</option>
                   </select>
                 </div>
               </div>

@@ -16,9 +16,10 @@ import { GroupService } from './services/group.service';
 declare var jQuery: any;
 
 @Component({
-  selector: 'app-group',
-  templateUrl: './group.component.html',
-  styleUrls: ['./group.component.scss']
+    selector: 'app-group',
+    templateUrl: './group.component.html',
+    styleUrls: ['./group.component.scss'],
+    standalone: false
 })
 export class GroupComponent implements AfterViewInit, OnInit {
 

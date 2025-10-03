@@ -14,9 +14,10 @@ import { Translate } from './models/translate';
 declare let jQuery: any;
 
 @Component({
-	selector: 'app-translate',
-	templateUrl: './translate.component.html',
-	styleUrls: ['./translate.component.scss']
+    selector: 'app-translate',
+    templateUrl: './translate.component.html',
+    styleUrls: ['./translate.component.scss'],
+    standalone: false
 })
 export class TranslateComponent implements  AfterViewInit, OnInit {
 

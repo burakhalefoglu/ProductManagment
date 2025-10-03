@@ -12,9 +12,10 @@ import { LanguageService } from './Services/Language.service';
 declare var jQuery: any;
 
 @Component({
-	selector: 'app-language',
-	templateUrl: './language.component.html',
-	styleUrls: ['./language.component.scss']
+    selector: 'app-language',
+    templateUrl: './language.component.html',
+    styleUrls: ['./language.component.scss'],
+    standalone: false
 })
 export class LanguageComponent implements AfterViewInit, OnInit {
 

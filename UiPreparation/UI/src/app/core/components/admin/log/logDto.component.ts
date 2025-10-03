@@ -14,9 +14,10 @@ import { MatSort } from '@angular/material/sort';
 declare var jQuery: any;
 
 @Component({
-	selector: 'app-logDto',
-	templateUrl: './logDto.component.html',
-	styleUrls: ['./logDto.component.scss']
+    selector: 'app-logDto',
+    templateUrl: './logDto.component.html',
+    styleUrls: ['./logDto.component.scss'],
+    standalone: false
 })
 export class LogDtoComponent implements AfterViewInit, OnInit {
 

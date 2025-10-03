@@ -13,9 +13,10 @@ import { OperationClaimService } from './Services/OperationClaim.service';
 declare var jQuery: any;
 
 @Component({
-	selector: 'app-operationClaim',
-	templateUrl: './operationClaim.component.html',
-	styleUrls: ['./operationClaim.component.scss']
+    selector: 'app-operationClaim',
+    templateUrl: './operationClaim.component.html',
+    styleUrls: ['./operationClaim.component.scss'],
+    standalone: false
 })
 export class OperationClaimComponent implements AfterViewInit, OnInit {
 

@@ -1,0 +1,174 @@
+pipeline {
+    agent any
+
+    environment {
+        // 🔧 Proje Bilgileri
+        PROJECT_NAME = "ArtistPlatform"
+        GIT_REPO_URL = "https://github.com/burakhalefoglu-official/ArtistPlatform.git"
+        GIT_CREDENTIALS_ID = "github-pat"
+
+        // 🚀 Servis İsimleri
+        SERVICE_API = "api_isikmedia_dev"
+        SERVICE_APP = "portal_isikmedia_dev"
+        SERVICE_API_BLUE = "api_isikmedia_blue_dev"
+        SERVICE_APP_BLUE = "portal_isikmedia_blue_dev"
+
+        // 🐳 Compose Dosyaları
+        COMPOSE_MAIN = "docker-compose-dev.yaml"
+        COMPOSE_BLUE = "docker-compose-dev-blue.yaml"
+
+        // 🏷️ Build Etiketi
+        BUILD_TAG = "dev-build-${BUILD_NUMBER}"
+
+        // 📢 Telegram Bildirim
+        TELEGRAM_BOT_TOKEN = "7431226070:AAFh3ArOY6YrYUmFqOu7dL_XL3ZoOb5SnTI"
+        TELEGRAM_CHAT_ID = "-1002531470202"
+    }
+
+    triggers {
+        githubPush() // develop branch otomatik tetiklenir
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: "${GIT_REPO_URL}",
+                        credentialsId: "${GIT_CREDENTIALS_ID}"
+                    ]]
+                ])
+            }
+        }
+
+        stage('Build Blue') {
+            steps {
+                echo "🔵 Blue için build başlıyor: ${BUILD_TAG}"
+                sh "docker-compose -f ${COMPOSE_BLUE} build --build-arg BUILD_TAG=${BUILD_TAG}"
+            }
+        }
+
+        stage('Deploy Blue') {
+            steps {
+                echo "🔵 Blue deploy ediliyor..."
+                sh "docker-compose -p blue -f ${COMPOSE_BLUE} up -d --build"
+            }
+        }
+
+        stage('Health Check Blue') {
+            steps {
+                script {
+                    def retry = 0
+                    def maxRetries = 30
+                    def apiHealth, appHealth
+
+                    while (retry < maxRetries) {
+                        apiHealth = sh(script: "docker inspect --format='{{.State.Health.Status}}' ${SERVICE_API_BLUE} || echo 'unhealthy'", returnStdout: true).trim()
+                        appHealth = sh(script: "docker inspect --format='{{.State.Health.Status}}' ${SERVICE_APP_BLUE} || echo 'unhealthy'", returnStdout: true).trim()
+
+                        if (apiHealth == "healthy" && appHealth == "healthy") {
+                            echo "✅ Blue container'lar sağlıklı!"
+                            break
+                        }
+
+                        echo "⌛ Sağlık kontrolü bekleniyor... (${retry + 1}/30)"
+                        sleep 5
+                        retry++
+                    }
+
+                    if (apiHealth != "healthy" || appHealth != "healthy") {
+                        error("❌ Blue container sağlık kontrolü başarısız!")
+                    }
+                }
+            }
+        }
+
+        stage('Remove Old Containers') {
+            steps {
+                echo "🧹 Eski container'lar kaldırılıyor..."
+                sh """
+                    docker stop ${SERVICE_API} || true
+                    docker rm ${SERVICE_API} || true
+                    docker stop ${SERVICE_APP} || true
+                    docker rm ${SERVICE_APP} || true
+                """
+            }
+        }
+
+        stage('Build Main') {
+            steps {
+                echo "🛠️ Ana (main) build başlıyor: ${BUILD_TAG}"
+                sh "docker-compose -f ${COMPOSE_MAIN} build --build-arg BUILD_TAG=${BUILD_TAG}"
+            }
+        }
+
+        stage('Deploy Main') {
+            steps {
+                script {
+                    try {
+                        echo "🚀 Main servis deploy ediliyor..."
+                        sh "docker-compose -f ${COMPOSE_MAIN} up -d --build"
+                    } catch (err) {
+                        echo "❌ Main deploy başarısız! Rollback başlatılıyor..."
+                        rollback()
+                        error("Main deploy başarısız oldu. Blue servislere geri dönüldü.")
+                    }
+                }
+            }
+        }
+
+        stage('Down Blue') {
+            steps {
+                echo "🧹 Blue container'lar durduruluyor..."
+                sh "docker-compose -p blue -f ${COMPOSE_BLUE} down || true"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Deploy başarılı!"
+            sh """
+                curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
+                    -d chat_id=${TELEGRAM_CHAT_ID} \
+                    -d text="✅ DEV Deploy Başarılı! Build: ${BUILD_NUMBER} - Proje: ${PROJECT_NAME}"
+            """
+        }
+
+        failure {
+            echo "🚨 Deploy başarısız oldu!"
+            sh """
+                curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
+                    -d chat_id=${TELEGRAM_CHAT_ID} \
+                    -d text="❌ DEV Deploy Başarısız! Build: ${BUILD_NUMBER} - Proje: ${PROJECT_NAME}"
+            """
+        }
+
+        always {
+            echo "♻️ Temizlik işlemleri..."
+            sh """
+                docker system prune -f || true
+                docker volume prune -f || true
+                docker image prune -f || true
+            """
+        }
+    }
+}
+
+def rollback() {
+    echo "🔁 Blue rollback başlatılıyor..."
+    sh "docker-compose -p blue -f ${COMPOSE_BLUE} up -d --build"
+
+    sleep 10
+
+    def apiHealth = sh(script: "docker inspect --format='{{.State.Health.Status}}' ${SERVICE_API_BLUE} || echo 'unhealthy'", returnStdout: true).trim()
+    def appHealth = sh(script: "docker inspect --format='{{.State.Health.Status}}' ${SERVICE_APP_BLUE} || echo 'unhealthy'", returnStdout: true).trim()
+
+    if (apiHealth != "healthy" || appHealth != "healthy") {
+        error("🚨 Rollback sonrası Blue container'lar da sağlıksız!")
+    }
+
+    echo "✅ Rollback başarılı, Blue yeniden ayağa kalktı!"
+}

@@ -1,0 +1,86 @@
+services:
+  api_isikmedia:
+    hostname: api_isikmedia
+    container_name: api_isikmedia
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: 'Production'
+    labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.apiisik.rule=Host(`api.isik.media`)"
+          - "traefik.http.routers.apiisik.entrypoints=websecure"
+          - "traefik.http.routers.apiisik.tls.certresolver=letsencrypt"
+          - "traefik.http.services.apiisik.loadbalancer.server.port=80"
+          - "traefik.http.routers.apiisik.middlewares=ratelimit@file,compress@file"
+    networks:
+      - log-net
+      - traefik-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  portal_isikmedia:
+    hostname: portal_isikmedia
+    container_name: portal_isikmedia
+    build:
+      context: ./UiPreparation/FlutterUi/flutter_devarchitecture
+      dockerfile: Dockerfile
+      args:
+        URL: "https://api.isik.media/api/v1"
+        FIREBASE: "false"
+        ENVIRONMENT: "prod"
+    restart: unless-stopped
+    expose:
+      - 3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portalisik.rule=Host(`portal.isik.media`)"
+      - "traefik.http.routers.portalisik.entrypoints=websecure"
+      - "traefik.http.routers.portalisik.tls.certresolver=letsencrypt"
+      - "traefik.http.services.portalisik.loadbalancer.server.port=3000"
+      - "traefik.http.routers.portalisik.middlewares=ratelimit@file,compress@file"
+    networks:
+      - log-net
+      - traefik-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+networks:
+  log-net:
+    external: true
+    name: log-net
+  traefik-net:
+    external: true
+    name: traefik-net

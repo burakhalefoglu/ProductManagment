@@ -1,0 +1,68 @@
+# Genellikle tüm projelerde yoksayılan dosyalar/klasörler
+#############################################
+.DS_Store
+.vscode/
+Thumbs.db
+*.log
+*.suo
+*.user
+*.bak
+obj/
+bin/
+
+# .NET / C# için
+#############################################
+# .NET / Visual Studio
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.pdb
+*.pidb
+*.vshost.*
+TestResults/
+build/
+Packages/
+*.intellisense.js
+*.webtest
+*.testsettings
+_ReSharper.*/
+[Tt]emp/
+[Rr]esharper/[Tt]emp/
+*.csproj.user
+*.sln.ide
+*.vs/
+.vs/
+*.sqlite
+
+# Flutter için
+#############################################
+# Build çıktıları
+.dart_tool/
+.idea/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+# Platforma özgü klasörler (genellikle build sırasında oluşur)
+ios/
+android/
+web/
+# Ek olarak:
+# Eğer bu klasörleri git'e dahil etmek istiyorsanız, yukarıdaki satırları silin
+# veya daha spesifik bir yoksayma kullanın.
+
+# Angular / Node.js için
+#############################################
+# Dependency klasörü
+/node_modules
+# Build çıktıları
+/dist
+/out
+# Log ve crash dosyaları
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Diğer
+*.tsbuildinfo
+.angular/

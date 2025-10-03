@@ -1,7 +1,7 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app.routing';
 import { AppComponent } from './app.component';
@@ -31,44 +31,35 @@ export function tokenGetter() {
 }
 
 
-@NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    ComponentsModule,
-    RouterModule,
-    AppRoutingModule,
-    NgMultiSelectDropDownModule.forRoot(),
-    SweetAlert2Module.forRoot(),
-    NgbModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        //useFactory:HttpLoaderFactory, //i18 kullanılacak ise useClass kapatılıp yukarıda bulunan HttpLoaderFactory ve bu satır aktif edilecek
-        useClass: TranslationService,
-        deps: [HttpClient]
-      }
-
-    })
-
-  ],
-  declarations: [
-    AppComponent,
-    AdminLayoutComponent
-  ],
-
-  providers: [
-    LoginGuard,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptorService,
-      multi: true,
-    },    
-    HttpEntityRepositoryService,
-  ],
-  bootstrap: [AppComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-})
+@NgModule({ declarations: [
+        AppComponent,
+        AdminLayoutComponent
+    ],
+    bootstrap: [AppComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserAnimationsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ComponentsModule,
+        RouterModule,
+        AppRoutingModule,
+        NgMultiSelectDropDownModule.forRoot(),
+        SweetAlert2Module.forRoot(),
+        NgbModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                //useFactory:HttpLoaderFactory, //i18 kullanılacak ise useClass kapatılıp yukarıda bulunan HttpLoaderFactory ve bu satır aktif edilecek
+                useClass: TranslationService,
+                deps: [HttpClient]
+            }
+        })], providers: [
+        LoginGuard,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptorService,
+            multi: true,
+        },
+        HttpEntityRepositoryService,
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule { }

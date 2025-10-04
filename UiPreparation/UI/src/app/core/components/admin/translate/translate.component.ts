@@ -1,14 +1,18 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { CustomTranslateService } from './services/custom_translate.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
 import { Translate } from './models/translate';
 import { LookUp } from '../../../models/LookUp';
 import { LookUpService } from '../../../services/LookUp.service';
 import { AlertifyService } from '../../../services/Alertify.service';
-import { AuthService } from '../login/Services/Auth.service';
+import {AuthService} from '../../public/login/Services/Auth.service';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
+import {SwalComponent, SwalDirective} from '@sweetalert2/ngx-sweetalert2';
 
 
 declare let jQuery: any;
@@ -17,157 +21,171 @@ declare let jQuery: any;
     selector: 'app-translate',
     templateUrl: './translate.component.html',
     styleUrls: ['./translate.component.scss'],
-    standalone: false
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        TranslateModule,
+        MatLabel,
+        MatFormField,
+        MatPaginator,
+        SwalDirective,
+        MatTable,
+        ReactiveFormsModule,
+        SwalComponent,
+    ]
 })
 export class TranslateComponent implements  AfterViewInit, OnInit {
 
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
-	@ViewChild(MatSort) sort!: MatSort;
+@ViewChild(MatPaginator) paginator!: MatPaginator;
+@ViewChild(MatSort) sort!: MatSort;
 
-	translateList: Translate[] = [];
-	translate: Translate = new Translate();
+translateList: Translate[] = [];
+translate: Translate = new Translate();
 
-	translateAddForm!: FormGroup;
+translateAddForm!: FormGroup;
 
-	langugelookUp!: LookUp[];
-	displayedColumns: string[] = ['id', 'language', 'code', 'value','update','delete'];
-	dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
-
-
-	translateId!: number;
+langugelookUp!: LookUp[];
+displayedColumns: string[] = ['id', 'language', 'code', 'value', 'update', 'delete'];
+dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
 
 
-	constructor(private translateService: CustomTranslateService,
-		private lookupService: LookUpService,
-		private alertifyService: AlertifyService,
-		private formBuilder: FormBuilder,
-		private authService: AuthService) { }
-
-	ngAfterViewInit(): void {
-
-		this.getTranslateList();
-	}
-
-	applyFilter(event: Event) {
-		const filterValue = (event.target as HTMLInputElement).value;
-		this.dataSource.filter = filterValue.trim().toLowerCase();
-
-		if (this.dataSource.paginator) {
-			this.dataSource.paginator.firstPage();
-		}
-	}
+translateId!: number;
 
 
-	ngOnInit() {
-		this.lookupService.getLanguageLookup().subscribe(data => {
-			this.langugelookUp = data;
-		})
+constructor(private translateService: CustomTranslateService,
+    private lookupService: LookUpService,
+    private alertifyService: AlertifyService,
+    private formBuilder: FormBuilder,
+    private authService: AuthService) { }
 
-		this.createTranslateAddForm();
-	}
+ngAfterViewInit(): void {
 
+    this.getTranslateList();
+}
 
-	getTranslateList() {
-		this.translateService.getTranslateList().subscribe(data => {
-			this.translateList = data;
-			this.dataSource = new MatTableDataSource(data);
-			this.configDataTable();
-		});
-	}
+applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-	save() {
-
-		if (this.translateAddForm.valid) {
-			this.translate = Object.assign({}, this.translateAddForm.value)
-
-			if (this.translate.id == 0)
-				this.addTranslate();
-			else
-				this.updateTranslate();
-
-		}
-
-	}
-
-	addTranslate() {
-
-		this.translateService.addTranslate(this.translate).subscribe(data => {
-			this.getTranslateList();
-			this.translate = new Translate();
-			jQuery('#translate').modal('hide');
-			this.alertifyService.success(data);
-			this.clearFormGroup(this.translateAddForm);
-
-		})
-
-	}
-
-	updateTranslate() {
-
-		this.translateService.updateTranslate(this.translate).subscribe(data => {
-			var index = this.translateList.findIndex(x => x.id == this.translate.id);
-			this.translateList[index].code = this.translate.code;
-			this.translateList[index].value = this.translate.value;
-			this.dataSource = new MatTableDataSource(this.translateList);
-			this.configDataTable();
-			this.translate = new Translate();
-			jQuery('#translate').modal('hide');
-			this.alertifyService.success(data);
-			this.clearFormGroup(this.translateAddForm);
-
-		})
-
-	}
-
-	createTranslateAddForm() {
-		this.translateAddForm = this.formBuilder.group({
-			id: [0],
-			langId: [0, Validators.required],
-			code: ["", Validators.required],
-			value: ["", Validators.required]
-		})
-	}
-
-	deleteTranslate(translateId: number) {
-		this.translateService.deleteTranslate(translateId).subscribe(data => {
-			this.alertifyService.success(data.toString());
-			this.translateList = this.translateList.filter(x => x.id != translateId);
-			this.dataSource = new MatTableDataSource(this.translateList);
-			this.configDataTable();
-		})
-	}
-
-	getTranslateById(translateId: number) {
-		this.clearFormGroup(this.translateAddForm);
-		this.translateService.getTranslateById(translateId).subscribe(data => {
-			this.translate = data;
-			this.translateAddForm.patchValue(data);
-		})
-	}
+    if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+    }
+}
 
 
-	clearFormGroup(group: FormGroup) {
+ngOnInit() {
+    this.lookupService.getLanguageLookup().subscribe(data => {
+        this.langugelookUp = data;
+    })
 
-		group.markAsUntouched();
-		group.reset();
+    this.createTranslateAddForm();
+}
 
-		Object.keys(group.controls).forEach(key => {
-			const control = group.get(key);
-			if (control) {
-				control.setErrors(null);
-				if (key == 'id')
-					control.setValue(0);
-			}
-		});
-	}
 
-	checkClaim(claim: string): boolean {
-		return this.authService.claimGuard(claim)
-	}
+getTranslateList() {
+    this.translateService.getTranslateList().subscribe(data => {
+        this.translateList = data;
+        this.dataSource = new MatTableDataSource(data);
+        this.configDataTable();
+    });
+}
 
-	configDataTable(): void {
-		this.dataSource.paginator = this.paginator;
-		this.dataSource.sort = this.sort;
-	}
+save() {
+
+    if (this.translateAddForm.valid) {
+        this.translate = Object.assign({}, this.translateAddForm.value)
+
+        if (this.translate.id === 0) {
+            this.addTranslate();
+        } else {
+            this.updateTranslate();
+        }
+
+    }
+
+}
+
+addTranslate() {
+
+    this.translateService.addTranslate(this.translate).subscribe(data => {
+        this.getTranslateList();
+        this.translate = new Translate();
+        jQuery('#translate').modal('hide');
+        this.alertifyService.success(data);
+        this.clearFormGroup(this.translateAddForm);
+
+    })
+
+}
+
+updateTranslate() {
+
+    this.translateService.updateTranslate(this.translate).subscribe(data => {
+        const index = this.translateList.findIndex(x => x.id === this.translate.id);
+        this.translateList[index].code = this.translate.code;
+        this.translateList[index].value = this.translate.value;
+        this.dataSource = new MatTableDataSource(this.translateList);
+        this.configDataTable();
+        this.translate = new Translate();
+        jQuery('#translate').modal('hide');
+        this.alertifyService.success(data);
+        this.clearFormGroup(this.translateAddForm);
+
+    })
+
+}
+
+createTranslateAddForm() {
+    this.translateAddForm = this.formBuilder.group({
+        id: [0],
+        langId: [0, Validators.required],
+        code: ['', Validators.required],
+        value: ['', Validators.required]
+    })
+}
+
+deleteTranslate(translateId: number) {
+    this.translateService.deleteTranslate(translateId).subscribe(data => {
+        this.alertifyService.success(data.toString());
+        this.translateList = this.translateList.filter(x => x.id !== translateId);
+        this.dataSource = new MatTableDataSource(this.translateList);
+        this.configDataTable();
+    })
+}
+
+getTranslateById(translateId: number) {
+    this.clearFormGroup(this.translateAddForm);
+    this.translateService.getTranslateById(translateId).subscribe(data => {
+        this.translate = data;
+        this.translateAddForm.patchValue(data);
+    })
+}
+
+
+clearFormGroup(group: FormGroup) {
+
+    group.markAsUntouched();
+    group.reset();
+
+    Object.keys(group.controls).forEach(key => {
+        const control = group.get(key);
+        if (control) {
+            control.setErrors(null);
+            if (key === 'id') {
+                control.setValue(0);
+            }
+        }
+    });
+}
+
+checkClaim(claim: string): boolean {
+    return this.authService.claimGuard(claim)
+}
+
+configDataTable(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+}
 
 }

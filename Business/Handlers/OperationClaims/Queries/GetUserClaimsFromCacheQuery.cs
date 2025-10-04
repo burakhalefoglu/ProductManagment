@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
-using Business.Constants;
+﻿using Business.Constants;
 using Core.Aspects.Autofac.Caching;
 using Core.Aspects.Autofac.Logging;
 using Core.Aspects.Autofac.Performance;
@@ -11,8 +6,15 @@ using Core.CrossCuttingConcerns.Caching;
 using Core.CrossCuttingConcerns.Logging.Serilog.Loggers;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
+using Entities.Concrete;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Business.Handlers.OperationClaims.Queries
 {
@@ -35,10 +37,6 @@ namespace Business.Handlers.OperationClaims.Queries
                 _contextAccessor = contextAccessor;
             }
 
-            [PerformanceAspect(5)]
-            [CacheAspect(10)]
-            [LogAspect(typeof(FileLogger))]
-            // TODO:[SecuredOperation(Priority = 1)]
             public async Task<IDataResult<IEnumerable<string>>> Handle(GetUserClaimsFromCacheQuery request, CancellationToken cancellationToken)
             {
                 var userId = _contextAccessor.HttpContext.User.Claims
@@ -48,9 +46,13 @@ namespace Business.Handlers.OperationClaims.Queries
                 {
                     throw new SecurityException(Messages.AuthorizationsDenied);
                 }
-
-                var oprClaims = await Task.Run(() => _cacheManager.Get($"{CacheKeys.UserIdForClaim}={userId}") as IEnumerable<string>);
-                
+                var oprClaims = await Task.Run(() =>
+                    _cacheManager.Get<IEnumerable<string>>($"{CacheKeys.UserIdForClaim}={userId}")
+                );
+                if (oprClaims == null)
+                {
+                    oprClaims = Array.Empty<string>();
+                }
                 return new SuccessDataResult<IEnumerable<string>>(oprClaims);
             }
         }

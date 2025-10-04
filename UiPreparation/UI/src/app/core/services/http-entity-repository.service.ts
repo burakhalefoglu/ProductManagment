@@ -1,49 +1,58 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs/internal/Observable";
-import { environment } from "../../../environments/environment";
+import { Injectable, DestroyRef, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {environment} from '../../../environments/environment';
 
-//If the token is sent with interception, there is no need to send header information here, 
-//but if the token information does not go in the request header with interception, it must be sent with a method in this class.
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class HttpEntityRepositoryService<T> {
-  
-  constructor(private httpClient: HttpClient) { }
 
-  /// /api/[controller] - GET
-  getAll(_url: string): Observable<T[]> {
-    return this.httpClient.get<T[]>( 
-      environment.getApiUrl + _url);
-  }
- 
-  //api/[controller]/:id - GET
-  get(_url: string, id?: number): Observable<T> {
-    return this.httpClient.get<T>(
-      environment.getApiUrl +  _url + ((id != undefined && id != null) ? + id : ""),
-    );
-  }
+    private httpClient = inject(HttpClient);
 
-  /// /api/[controller] - POST
-  add(_url: string, _content: any): Observable<T> {
-    return this.httpClient.post<T>(
-      environment.getApiUrl +  _url,
-      _content,
-    );
-  }
+    constructor() { }
 
-  // /api/[controller] - PUT
-  update(_url: string, _content: any): Observable<T> {
-    return this.httpClient.put<T>(
-      environment.getApiUrl + _url,
-      _content,
-    );
-  }
+    getAll(_url: string, destroyRef?: DestroyRef): Observable<T[]> {
+        const request$ = this.httpClient.get<T[]>(environment.getApiUrl + _url);
 
-  // /api/[controller]/:id - DELETE
-  delete(_url: string, id: number): Observable<T> {
-    return this.httpClient.delete<T>(
-      environment.getApiUrl + _url  + id,
-    );
-  }
+        // Eğer DestroyRef varsa otomatik iptali etkinleştir
+        return destroyRef
+            ? request$.pipe(takeUntilDestroyed(destroyRef))
+            : request$;
+    }
+
+    get(_url: string, id?: number, destroyRef?: DestroyRef): Observable<T> {
+        const idParam = (id !== undefined && id !== null) ? +id : '';
+        const request$ = this.httpClient.get<T>(environment.getApiUrl + _url + idParam);
+
+        return destroyRef
+            ? request$.pipe(takeUntilDestroyed(destroyRef))
+            : request$;
+    }
+
+    add(_url: string, _content: any, destroyRef?: DestroyRef): Observable<T> {
+        const request$ = this.httpClient.post<T>(environment.getApiUrl + _url, _content);
+
+        return destroyRef
+            ? request$.pipe(takeUntilDestroyed(destroyRef))
+            : request$;
+    }
+
+    update(_url: string, _content: any, destroyRef?: DestroyRef): Observable<T> {
+        const request$ = this.httpClient.put<T>(environment.getApiUrl + _url, _content);
+
+        return destroyRef
+            ? request$.pipe(takeUntilDestroyed(destroyRef))
+            : request$;
+    }
+
+    delete(_url: string, id: number, destroyRef?: DestroyRef): Observable<T> {
+        const request$ = this.httpClient.delete<T>(environment.getApiUrl + _url + id);
+
+        return destroyRef
+            ? request$.pipe(takeUntilDestroyed(destroyRef))
+            : request$;
+    }
 }

@@ -1,9 +1,8 @@
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {RouterLink, RouterModule} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AdminLayoutRoutes } from '../components/app/layouts/admin-layout/admin-layout.routing';
-import { DashboardComponent } from '../components/app/dashboard/dashboard.component';
+import { DashboardComponent } from '../components/admin/dashboard/dashboard.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatRippleModule } from '@angular/material/core';
@@ -25,19 +24,17 @@ import { MatSortModule } from '@angular/material/sort';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { TranslationService } from '../services/Translation.service';
 import { UserComponent } from '../components/admin/user/user.component';
-import { LoginComponent } from '../components/admin/login/login.component';
 import { GroupComponent } from '../components/admin/group/group.component';
-
-
-// export function layoutHttpLoaderFactory(http: HttpClient) {
-// 
-//   return new TranslateHttpLoader(http,'../../../../../../assets/i18n/','.json');
-// }
+import {LoginComponent} from '../components/public/login/login.component';
+import {RegisterComponent} from '../components/public/register/register.component';
+import {ProductListComponent} from '../components/admin/product/product-list/product-list.component';
+import {ProductAddComponent} from '../components/admin/product/product-add/product-add.component';
+import {ProductDetailComponent} from '../components/admin/product/product-detail/product-detail.component';
+import {ProductUpdateComponent} from '../components/admin/product/product-update/product-update.component';
 
 @NgModule({
     imports: [
         CommonModule,
-        RouterModule.forChild(AdminLayoutRoutes),
         FormsModule,
         ReactiveFormsModule,
         MatButtonModule,
@@ -56,13 +53,11 @@ import { GroupComponent } from '../components/admin/group/group.component';
         TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
-                //useFactory:layoutHttpLoaderFactory,
                 useClass: TranslationService,
                 deps: [HttpClient]
             }
-        })
-    ],
-    declarations: [
+        }),
+        RouterLink,
         DashboardComponent,
         UserComponent,
         LoginComponent,
@@ -70,9 +65,13 @@ import { GroupComponent } from '../components/admin/group/group.component';
         LanguageComponent,
         TranslateComponent,
         OperationClaimComponent,
-        LogDtoComponent
-
-    ]
+        LogDtoComponent,
+        RegisterComponent,
+        ProductListComponent,
+        ProductAddComponent,
+        ProductDetailComponent,
+        ProductUpdateComponent
+    ],
 })
 
 export class AdminLayoutModule { }

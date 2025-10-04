@@ -90,6 +90,7 @@ namespace WebAPI.Controllers
         [HttpGet("cache")]
         public async Task<IActionResult> GetUserClaimsFromCache()
         {
+
             return GetResponseOnlyResultData(await Mediator.Send(new GetUserClaimsFromCacheQuery()));
         }
     }

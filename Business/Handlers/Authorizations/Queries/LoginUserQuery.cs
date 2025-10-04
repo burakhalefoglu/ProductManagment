@@ -64,7 +64,6 @@ namespace Business.Handlers.Authorizations.Queries
                 await _userRepository.SaveChangesAsync();
 
                 _cacheManager.Add($"{CacheKeys.UserIdForClaim}={user.UserId}", claims.Select(x => x.Name));
-
                 return new SuccessDataResult<AccessToken>(accessToken, Messages.SuccessfulLogin);
             }
         }

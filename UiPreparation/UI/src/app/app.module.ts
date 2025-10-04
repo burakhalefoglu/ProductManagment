@@ -9,37 +9,27 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { ComponentsModule } from './core/modules/components.module';
-import { AdminLayoutComponent } from './core/components/app/layouts/admin-layout/admin-layout.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { LoginGuard } from './core/guards/login-guard';
 import { AuthInterceptorService } from './core/interceptors/auth-interceptor.service';
 import { HttpEntityRepositoryService } from './core/services/http-entity-repository.service';
 import { TranslationService } from './core/services/Translation.service';
-
-
-// i18 kullanıclak ise aşağıdaki metod aktif edilecek
-
-//  export function HttpLoaderFactory(http: HttpClient) {
-//    
-//    var asd=new TranslateHttpLoader(http, '../../../../assets/i18n/', '.json'); 
-//    return asd;
-//  }
-
+import {SidebarComponent} from './core/components/base/sidebar/sidebar.component';
+import {NavbarComponent} from './core/components/base/navbar/navbar.component';
+import {FooterComponent} from './core/components/base/footer/footer.component';
 
 export function tokenGetter() {
-  return localStorage.getItem("token");
+  return localStorage.getItem('token');
 }
 
 
 @NgModule({ declarations: [
         AppComponent,
-        AdminLayoutComponent
     ],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
-        ComponentsModule,
         RouterModule,
         AppRoutingModule,
         NgMultiSelectDropDownModule.forRoot(),
@@ -48,11 +38,10 @@ export function tokenGetter() {
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                //useFactory:HttpLoaderFactory, //i18 kullanılacak ise useClass kapatılıp yukarıda bulunan HttpLoaderFactory ve bu satır aktif edilecek
                 useClass: TranslationService,
                 deps: [HttpClient]
             }
-        })], providers: [
+        }), SidebarComponent, NavbarComponent, FooterComponent], providers: [
         LoginGuard,
         {
             provide: HTTP_INTERCEPTORS,
@@ -61,5 +50,7 @@ export function tokenGetter() {
         },
         HttpEntityRepositoryService,
         provideHttpClient(withInterceptorsFromDi()),
+        ComponentsModule,
+
     ] })
 export class AppModule { }

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
 
 declare let alertify: any;
 
@@ -22,15 +21,15 @@ export class AlertifyService {
     this.translateService.get(message).subscribe((mes: string) => {
       alertify.success(mes);
     });
-    
+
   }
 
   error(message: string) {
-    this.translateService.get(message).subscribe((mes: string) => {      
+    this.translateService.get(message).subscribe((mes: string) => {
       alertify.error(mes);
     });
 
-    
+
   }
 
   info(message: string) {
@@ -46,7 +45,7 @@ export class AlertifyService {
     this.translateService.get(message).subscribe((mes: string) => {
       alertify.warning(message);
     });
- 
+
   }
 
   confirmDelete(url: string, values: any) {
@@ -55,11 +54,11 @@ export class AlertifyService {
     // alertify.confirm("aa", "bb", () => { this.deleteRequest(url,values); }
     // , () => { this.error("hata")});
 
-    //alertify.confirm('Confirm Message', function(){ alertify.success('Ok') }, function(){ alertify.error('Cancel')});
-    // 
+    // alertify.confirm('Confirm Message', function(){ alertify.success('Ok') }, function(){ alertify.error('Cancel')});
+    //
     // alertify.confirm('Delete Message',this.deleteRequest(url,values),this.error("Hata"));
 
-    // 
+    //
 
 
 
@@ -74,8 +73,8 @@ export class AlertifyService {
   }
 
   delete(url: string, values: any) {
-    
-    this.httpClient.request("delete", url, values)
+
+    this.httpClient.request('delete', url, values)
   }
 
 

@@ -1,49 +1,69 @@
 import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  ViewChild,
-} from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { IDropdownSettings } from "ng-multiselect-dropdown";
-import { PasswordDto } from "./models/passwordDto";
-import { MatSort } from "@angular/material/sort";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatTableDataSource } from "@angular/material/table";
-import { User } from "./models/User";
-import { LookUp } from "../../../models/LookUp";
-import { UserService } from "./Services/User.service";
-import { LookUpService } from "../../../services/LookUp.service";
-import { AlertifyService } from "../../../services/Alertify.service";
-import { AuthService } from "../login/Services/Auth.service";
-import { environment } from "../../../../../environments/environment";
-import { MustMatch } from "../../../directives/must-match";
+    AfterViewInit, ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {IDropdownSettings, NgMultiSelectDropDownModule} from 'ng-multiselect-dropdown';
+import { PasswordDto } from './models/passwordDto';
+import { MatSort } from '@angular/material/sort';
+import { MatPaginator } from '@angular/material/paginator';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
+import { User } from './models/User';
+import { LookUp } from '../../../models/LookUp';
+import { UserService } from './Services/User.service';
+import { LookUpService } from '../../../services/LookUp.service';
+import { AlertifyService } from '../../../services/Alertify.service';
+import {AuthService} from '../../public/login/Services/Auth.service';
+import { environment } from '../../../../../environments/environment';
+import { MustMatch } from '../../../directives/must-match';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
+import {SwalComponent, SwalDirective} from '@sweetalert2/ngx-sweetalert2';
+import {MatCheckbox} from '@angular/material/checkbox';
 
 declare var jQuery: any;
 
 @Component({
-    selector: "app-user",
-    templateUrl: "./user.component.html",
-    styleUrls: ["./user.component.scss"],
-    standalone: false
+    selector: 'app-user',
+    templateUrl: './user.component.html',
+    styleUrls: ['./user.component.scss'],
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        TranslateModule,
+        NgMultiSelectDropDownModule,
+        FormsModule,
+        MatFormField,
+        ReactiveFormsModule,
+        SwalDirective,
+        MatLabel,
+        MatTable,
+        MatCheckbox,
+        MatPaginator,
+        SwalComponent,
+    ]
 })
 export class UserComponent implements AfterViewInit, OnInit {
-  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
+  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   displayedColumns: string[] = [
-    "userId",
-    "email",
-    "fullName",
-    "status",
-    "mobilePhones",
-    "address",
-    "notes",
-    "passwordChange",
-    "updateClaim",
-    "updateGroupClaim",
-    "update",
-    "delete",
+    'userId',
+    'email',
+    'fullName',
+    'status',
+    'mobilePhones',
+    'address',
+    'notes',
+    'passwordChange',
+    'updateClaim',
+    'updateGroupClaim',
+    'update',
+    'delete',
   ];
 
   user!: User;
@@ -55,10 +75,13 @@ export class UserComponent implements AfterViewInit, OnInit {
   claimDropdownList!: LookUp[];
   claimSelectedItems!: LookUp[];
 
-  isGroupChange: boolean = false;
-  isClaimChange: boolean = false;
+  isGroupChange = false;
+  isClaimChange = false;
 
   userId!: number;
+
+  userAddForm!: FormGroup;
+  passwordForm!: FormGroup;
 
   constructor(
     private userService: UserService,
@@ -71,9 +94,6 @@ export class UserComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     this.getUserList();
   }
-
-  userAddForm!: FormGroup;
-  passwordForm!: FormGroup;
 
   ngOnInit() {
     this.createUserAddForm();
@@ -105,21 +125,21 @@ export class UserComponent implements AfterViewInit, OnInit {
       this.claimSelectedItems = data;
     });
   }
- 
+
   saveUserGroupsPermissions() {
     if (this.isGroupChange) {
-      var ids = this.groupSelectedItems.map(function (x) {
+      const ids = this.groupSelectedItems.map(function (x) {
         return x.id as number;
       });
       this.userService.saveUserGroupPermissions(this.userId, ids).subscribe(
         (x) => {
-          jQuery("#groupPermissions").modal("hide");
+          jQuery('#groupPermissions').modal('hide');
           this.isGroupChange = false;
           this.alertifyService.success(x);
         },
         (error) => {
           this.alertifyService.error(error.error);
-          jQuery("#groupPermissions").modal("hide");
+          jQuery('#groupPermissions').modal('hide');
         }
       );
     }
@@ -127,18 +147,18 @@ export class UserComponent implements AfterViewInit, OnInit {
 
   saveUserClaimsPermission() {
     if (this.isClaimChange) {
-      var ids = this.claimSelectedItems.map(function (x) {
+      const ids = this.claimSelectedItems.map(function (x) {
         return x.id as number;
       });
       this.userService.saveUserClaims(this.userId, ids).subscribe(
         (x) => {
-          jQuery("#claimsPermissions").modal("hide");
+          jQuery('#claimsPermissions').modal('hide');
           this.isClaimChange = false;
           this.alertifyService.success(x);
         },
         (error) => {
           this.alertifyService.error(error.error);
-          jQuery("#claimsPermissions").modal("hide");
+          jQuery('#claimsPermissions').modal('hide');
         }
       );
     }
@@ -156,18 +176,17 @@ export class UserComponent implements AfterViewInit, OnInit {
   }
 
   setComboStatus(comboType: string) {
-    if (comboType == "Group") this.isGroupChange = true;
-    else if (comboType == "Claim") this.isClaimChange = true;
+    if (comboType === 'Group') { this.isGroupChange = true; } else if (comboType === 'Claim') { this.isClaimChange = true; }
   }
 
   createUserAddForm() {
     this.userAddForm = this.formBuilder.group({
       userId: [0],
-      fullName: ["", Validators.required],
-      email: ["", Validators.required],
-      address: [""],
-      notes: [""],
-      mobilePhones: [""],
+      fullName: ['', Validators.required],
+      email: ['', Validators.required],
+      address: [''],
+      notes: [''],
+      mobilePhones: [''],
       status: [true],
     });
   }
@@ -175,11 +194,11 @@ export class UserComponent implements AfterViewInit, OnInit {
   createPasswordForm() {
     this.passwordForm = this.formBuilder.group(
       {
-        password: ["", Validators.required],
-        confirmPassword: ["", Validators.required],
+        password: ['', Validators.required],
+        confirmPassword: ['', Validators.required],
       },
       {
-        validator: MustMatch("password", "confirmPassword"),
+        validator: MustMatch('password', 'confirmPassword'),
       }
     );
   }
@@ -200,8 +219,7 @@ export class UserComponent implements AfterViewInit, OnInit {
       const control = group.get(key);
       if (control) {
         control.setErrors(null);
-        if (key == "userId") control.setValue(0);
-        else if (key == "status") control.setValue(true);
+        if (key === 'userId') { control.setValue(0); } else if (key === 'status') { control.setValue(true); }
       }
     });
   }
@@ -214,20 +232,19 @@ export class UserComponent implements AfterViewInit, OnInit {
     if (this.userAddForm.valid) {
       this.user = Object.assign({}, this.userAddForm.value);
 
-      if (this.user.userId == 0) this.addUser();
-      else this.updateUser();
+      if (this.user.userId === 0) { this.addUser(); } else { this.updateUser(); }
     }
   }
 
   savePassword() {
     if (this.passwordForm.valid) {
-      var passwordDto: PasswordDto = new PasswordDto();
+      const passwordDto: PasswordDto = new PasswordDto();
       passwordDto.userId = this.userId;
       passwordDto.password = this.passwordForm.value.password;
 
       this.userService.saveUserPassword(passwordDto).subscribe((data) => {
         this.userId = 0;
-        jQuery("#passwordChange").modal("hide");
+        jQuery('#passwordChange').modal('hide');
         this.alertifyService.success(data);
         this.clearFormGroup(this.passwordForm);
       });
@@ -238,7 +255,7 @@ export class UserComponent implements AfterViewInit, OnInit {
     this.userService.addUser(this.user).subscribe((data) => {
       this.getUserList();
       this.user = new User();
-      jQuery("#user").modal("hide");
+      jQuery('#user').modal('hide');
       this.alertifyService.success(data);
       this.clearFormGroup(this.userAddForm);
     });
@@ -254,12 +271,12 @@ export class UserComponent implements AfterViewInit, OnInit {
 
   updateUser() {
     this.userService.updateUser(this.user).subscribe((data) => {
-      var index = this.userList.findIndex((x) => x.userId == this.user.userId);
+      const index = this.userList.findIndex((x) => x.userId === this.user.userId);
       this.userList[index] = this.user;
       this.dataSource = new MatTableDataSource(this.userList);
       this.configDataTable();
       this.user = new User();
-      jQuery("#user").modal("hide");
+      jQuery('#user').modal('hide');
       this.alertifyService.success(data);
       this.clearFormGroup(this.userAddForm);
     });
@@ -268,7 +285,8 @@ export class UserComponent implements AfterViewInit, OnInit {
   deleteUser(id: number) {
     this.userService.deleteUser(id).subscribe((data) => {
       this.alertifyService.success(data.toString());
-      var index = this.userList.findIndex((x) => x.userId == id);
+        // tslint:disable-next-line:triple-equals
+      const index = this.userList.findIndex((x) => x.userId == id);
       this.userList[index].status = false;
       this.dataSource = new MatTableDataSource(this.userList);
       this.configDataTable();

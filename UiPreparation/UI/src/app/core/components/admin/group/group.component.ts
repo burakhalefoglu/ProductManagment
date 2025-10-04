@@ -1,17 +1,21 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {AfterViewInit, ChangeDetectionStrategy, Component, OnInit, ViewChild} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import {MatTable, MatTableDataSource} from '@angular/material/table';
 
-import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import {IDropdownSettings, NgMultiSelectDropDownModule} from 'ng-multiselect-dropdown';
 import { Group } from './Models/Group';
 import { GroupService } from './Services/Group.service';
 import { LookUp } from '../../../models/LookUp';
 import { environment } from '../../../../../environments/environment';
 import { LookUpService } from '../../../services/LookUp.service';
 import { AlertifyService } from '../../../services/Alertify.service';
-import { AuthService } from '../login/Services/Auth.service';
+import {AuthService} from '../../public/login/Services/Auth.service';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
+import {SwalComponent, SwalDirective} from '@sweetalert2/ngx-sweetalert2';
 
 
 declare var jQuery: any;
@@ -20,232 +24,249 @@ declare var jQuery: any;
     selector: 'app-group',
     templateUrl: './group.component.html',
     styleUrls: ['./group.component.scss'],
-    standalone: false
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        CommonModule,
+        TranslateModule,
+        MatFormField,
+        MatLabel,
+        MatTable,
+        SwalDirective,
+        MatPaginator,
+        ReactiveFormsModule,
+        NgMultiSelectDropDownModule,
+        FormsModule,
+        SwalComponent,
+    ]
 })
 export class GroupComponent implements AfterViewInit, OnInit {
 
-  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]); 
-	@ViewChild(MatPaginator) paginator!: MatPaginator;
-	@ViewChild(MatSort) sort!: MatSort;
-	displayedColumns: string[] = ["id","groupName","updateGroupClaim","updateUserGroupClaims","update","delete"];
-  
-  userDropdownList!:LookUp[];
-  userSelectedItems!:LookUp[];
+dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+@ViewChild(MatPaginator) paginator!: MatPaginator;
+@ViewChild(MatSort) sort!: MatSort;
+displayedColumns: string[] = ['id', 'groupName', 'updateGroupClaim', 'updateUserGroupClaims', 'update', 'delete'];
 
-  claimDropdownList!:LookUp[];
-  claimSelectedItems!:LookUp[];
+userDropdownList!: LookUp[];
+userSelectedItems!: LookUp[];
 
-  dropdownSettings!: IDropdownSettings;
+claimDropdownList!: LookUp[];
+claimSelectedItems!: LookUp[];
 
-  groupList!:Group[];
-  group:Group=new Group();
+dropdownSettings!: IDropdownSettings;
 
-  groupAddForm!: FormGroup;
+groupList!: Group[];
+group: Group = new Group();
 
-  isUserChange: boolean = false;
-  isClaimChange: boolean = false;
+groupAddForm!: FormGroup;
 
-  groupId!:number;
+isUserChange = false;
+isClaimChange = false;
 
-  constructor(private groupService:GroupService,
-    private lookupService:LookUpService,
-    private alertifyService:AlertifyService,
-    private formBuilder: FormBuilder,
-    private authService:AuthService) { }
+groupId!: number;
 
-  
-  ngAfterViewInit(): void {
+constructor(private groupService: GroupService,
+private lookupService: LookUpService,
+private alertifyService: AlertifyService,
+private formBuilder: FormBuilder,
+private authService: AuthService) { }
 
-    this.getGroupList();
 
+ngAfterViewInit(): void {
+
+this.getGroupList();
+
+}
+ngOnInit() {
+
+this.createGroupAddForm();
+
+this.dropdownSettings = environment.getDropDownSetting;
+
+  this.lookupService.getOperationClaimLookUp().subscribe((data: LookUp[]) => {
+    this.claimDropdownList = data;
+  });
+
+ this.lookupService.getUserLookUp().subscribe((data: LookUp[]) => {
+   this.userDropdownList = data;
+ });
+}
+
+
+getGroupList() {
+this.groupService.getGroupList().subscribe(data => {
+  this.groupList = data,
+  this.dataSource = new MatTableDataSource(data);
+  this.configDataTable();
+});
+}
+
+save() {
+if (this.groupAddForm.valid) {
+  this.group = Object.assign({}, this.groupAddForm.value)
+
+  if (this.group.id === 0) {
+    this.addGroup();
+  } else {
+    this.updateGroup();
   }
-  ngOnInit() {
 
-    this.createGroupAddForm();
+}
 
-    this.dropdownSettings=environment.getDropDownSetting;
+}
 
-      this.lookupService.getOperationClaimLookUp().subscribe((data: LookUp[])=>{
-        this.claimDropdownList=data;
-      });
+addGroup() {
 
-     this.lookupService.getUserLookUp().subscribe((data: LookUp[])=>{
-       this.userDropdownList=data;
-     });
+this.groupService.addGroup(this.group).subscribe(data => {
+  this.getGroupList();
+  this.group = new Group();
+  jQuery('#group').modal('hide');
+  this.alertifyService.success(data);
+  this.clearFormGroup(this.groupAddForm);
+
+})
+
+}
+
+updateGroup() {
+this.groupService.updateGroup(this.group).subscribe(data => {
+
+  const index = this.groupList.findIndex(x => x.id === this.group.id);
+  this.groupList[index] = this.group;
+  this.dataSource = new MatTableDataSource(this.groupList);
+  this.configDataTable();
+  this.group = new Group();
+  jQuery('#group').modal('hide');
+  this.alertifyService.success(data);
+  this.clearFormGroup(this.groupAddForm);
+
+})
+
+}
+
+createGroupAddForm() {
+this.groupAddForm = this.formBuilder.group({
+  id: [0],
+  groupName: ['', Validators.required],
+})
+}
+
+deleteGroup(groupId: number) {
+this.groupService.deleteGroup(groupId).subscribe(data => {
+  this.alertifyService.success(data.toString());
+  this.groupList = this.groupList.filter(x => x.id !== groupId);
+  this.dataSource = new MatTableDataSource(this.groupList);
+  this.configDataTable();
+})
+}
+
+getGroupById(groupId: number) {
+this.clearFormGroup(this.groupAddForm);
+this.groupService.getGroupById(groupId).subscribe(data => {
+  this.group = data;
+  this.groupAddForm.patchValue(data);
+})
+}
+
+getGroupClaims(groupId: number) {
+
+this.groupId = groupId;
+
+this.groupService.getGroupClaims(groupId).subscribe(data => {
+  this.claimSelectedItems = data;
+})
+
+}
+
+getGroupUsers(groupId: number) {
+
+ this.groupId = groupId;
+
+this.groupService.getGroupUsers(groupId).subscribe(data => {
+  this.userSelectedItems = data;
+})
+
+}
+
+saveGroupClaims() {
+if (this.isClaimChange) {
+  const ids = this.claimSelectedItems.map(function(x) { return x.id as number});
+  this.groupService.saveGroupClaims(this.groupId, ids).subscribe(x => {
+    jQuery('#groupClaims').modal('hide');
+    this.isClaimChange = false;
+    this.alertifyService.success(x);
+  });
   }
 
+}
 
-  getGroupList() {
-    this.groupService.getGroupList().subscribe(data => {
-      this.groupList = data,
-      this.dataSource = new MatTableDataSource(data);
-      this.configDataTable();
-    });
+saveGroupUsers() {
+
+if (this.isUserChange) {
+
+  const ids = this.userSelectedItems.map(function(x) { return x.id as number});
+  this.groupService.saveGroupUsers(this.groupId, ids).subscribe(x => {
+    jQuery('#groupUsers').modal('hide');
+    this.isUserChange = false;
+    this.alertifyService.success(x);
+  });
   }
 
-  save(){
-    if (this.groupAddForm.valid) {
-      this.group = Object.assign({}, this.groupAddForm.value)
+}
 
-      if (this.group.id == 0)
-        this.addGroup();
-      else
-        this.updateGroup();
+onItemSelect(comboType: string) {
+this.setComboStatus(comboType);
+}
 
+onSelectAll(comboType: string) {
+this.setComboStatus(comboType);
+}
+onItemDeSelect(comboType: string) {
+this.setComboStatus(comboType);
+}
+
+setComboStatus(comboType: string) {
+
+if (comboType === 'User') {
+  this.isUserChange = true;
+} else if (comboType === 'Claim') {
+  this.isClaimChange = true;
+}
+
+}
+
+clearFormGroup(group: FormGroup) {
+
+group.markAsUntouched();
+group.reset();
+
+Object.keys(group.controls).forEach(key => {
+  const control = group.get(key);
+  if (control) {
+    control.setErrors(null);
+    if (key === 'id') {
+      control.setValue(0);
     }
-
   }
+});
+}
 
-  addGroup(){
+checkClaim(claim: string): boolean {
+return this.authService.claimGuard(claim)
+}
 
-    this.groupService.addGroup(this.group).subscribe(data => {
-      this.getGroupList();
-      this.group = new Group();
-      jQuery("#group").modal("hide");
-      this.alertifyService.success(data);
-      this.clearFormGroup(this.groupAddForm);
+configDataTable(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+}
 
-    })
+applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
-  }
-
-  updateGroup(){  
-    this.groupService.updateGroup(this.group).subscribe(data => {
-
-      var index=this.groupList.findIndex(x=>x.id==this.group.id);
-      this.groupList[index]=this.group;
-      this.dataSource = new MatTableDataSource(this.groupList);
-      this.configDataTable();
-      this.group = new Group();
-      jQuery("#group").modal("hide");
-      this.alertifyService.success(data);
-      this.clearFormGroup(this.groupAddForm);
-
-    })
-
-  }
-
-  createGroupAddForm() {
-    this.groupAddForm = this.formBuilder.group({
-      id: [0],
-      groupName: ["", Validators.required],
-    })
-  }
-
-  deleteGroup(groupId:number){
-    this.groupService.deleteGroup(groupId).subscribe(data=>{
-      this.alertifyService.success(data.toString());
-      this.groupList=this.groupList.filter(x=> x.id!=groupId);
-      this.dataSource = new MatTableDataSource(this.groupList);
-      this.configDataTable();
-    })
-  }
-
-  getGroupById(groupId:number){
-    this.clearFormGroup(this.groupAddForm);
-    this.groupService.getGroupById(groupId).subscribe(data=>{
-      this.group=data;
-      this.groupAddForm.patchValue(data);
-    })
-  }
-
-  getGroupClaims(groupId:number){
-
-    this.groupId=groupId;
-
-    this.groupService.getGroupClaims(groupId).subscribe(data => {
-      this.claimSelectedItems = data;
-    })
-
-  }
-
-  getGroupUsers(groupId:number){
-
-     this.groupId=groupId;
-
-    this.groupService.getGroupUsers(groupId).subscribe(data => {
-      this.userSelectedItems = data;
-    })
-    
-  }
-
-  saveGroupClaims(){
-    if(this.isClaimChange){
-      var ids=this.claimSelectedItems.map(function(x){ return x.id as number});
-      this.groupService.saveGroupClaims(this.groupId, ids).subscribe(x=>{
-        jQuery("#groupClaims").modal("hide");
-        this.isClaimChange=false;
-        this.alertifyService.success(x);
-      });
-      }
-
-  }
-
-  saveGroupUsers(){
-
-    if(this.isUserChange){
-
-      var ids=this.userSelectedItems.map(function(x){ return x.id as number});
-      this.groupService.saveGroupUsers(this.groupId, ids).subscribe(x=>{
-        jQuery("#groupUsers").modal("hide");
-        this.isUserChange=false;
-        this.alertifyService.success(x);
-      });
-      }
-
-  }
-
-  onItemSelect(comboType: string) {
-    this.setComboStatus(comboType);
-  }
-
-  onSelectAll(comboType: string) {
-    this.setComboStatus(comboType);
-  }
-  onItemDeSelect(comboType: string) {
-    this.setComboStatus(comboType);
-  }
-
-  setComboStatus(comboType: string) {
-
-    if (comboType == "User")
-      this.isUserChange = true;
-    else if (comboType == "Claim")
-      this.isClaimChange = true;
-
-  }
-
-  clearFormGroup(group: FormGroup) {
-
-    group.markAsUntouched();
-    group.reset();
-
-    Object.keys(group.controls).forEach(key => {
-      const control = group.get(key);
-      if (control) {
-        control.setErrors(null);
-        if (key == "id")
-          control.setValue(0);
-      }
-    });
-  }
-
-  checkClaim(claim:string):boolean{
-    return this.authService.claimGuard(claim)
-  }
-
-  configDataTable(): void {
-		this.dataSource.paginator = this.paginator;
-		this.dataSource.sort = this.sort;
-	}
-
-	applyFilter(event: Event) {
-		const filterValue = (event.target as HTMLInputElement).value;
-		this.dataSource.filter = filterValue.trim().toLowerCase();
-
-		if (this.dataSource.paginator) {
-			this.dataSource.paginator.firstPage();
-		}
-	}
+    if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+    }
+}
 
 }

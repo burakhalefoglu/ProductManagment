@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "material-dashboard-angular": {
+    "product-dashboard-angular": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -11,7 +11,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/material-dashboard-angular",
+            "outputPath": "dist/product-dashboard-angular",
             "index": "src/index.html",
             "tsConfig": "src/tsconfig.app.json",
             "polyfills": [
@@ -24,30 +24,38 @@
             ],
             "styles": [
               "src/styles.css",
+              "src/assets/css/portal.css",
+              "src/assets/scss/portal.scss",
+              "src/assets/plugins/fontawesome/css/fontawesome.min.css",
+              "src/assets/plugins/bootstrap/css/bootstrap.min.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css",
-              "node_modules/alertifyjs/build/css/alertify.min.css",
+              "node_modules/alertifyjs/build/css/alertify.min.css", 
               "node_modules/alertifyjs/build/css/themes/bootstrap.min.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
-              "src/assets/scss/material-dashboard.scss",
-              "src/assets/css/demo.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "node_modules/bootstrap-select/dist/css/bootstrap-select.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.js",
-              "node_modules/popper.js/dist/umd/popper.min.js",
+              "node_modules/@popperjs/core/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "node_modules/arrive/src/arrive.js",
+
               "node_modules/moment/moment.js",
-              "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js",
-              "node_modules/bootstrap-notify/bootstrap-notify.js",
-              "node_modules/chartist/dist/chartist.js",
               "node_modules/alertifyjs/build/alertify.min.js",
-              "node_modules/bootstrap/js/dist/tab.js",
+              "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js",
+              "node_modules/chartist/dist/chartist.js",
+              "node_modules/arrive/src/arrive.js",
+              "node_modules/bootstrap-notify/bootstrap-notify.js",
               "node_modules/@fortawesome/fontawesome-free/js/all.min.js",
+
               "node_modules/bootstrap-select/dist/js/bootstrap-select.min.js",
-              "node_modules/bootstrap-select/dist/js/i18n/defaults-tr_TR.js"
+              "node_modules/bootstrap-select/dist/js/i18n/defaults-tr_TR.js",
+
+              "src/assets/plugins/chart.js/chart.min.js",
+              "src/assets/js/app.js",
+              "src/assets/js/charts-demo.js",
+              "src/assets/js/index-charts.js"
             ],
             "allowedCommonJsDependencies": [
               "jquery",
@@ -82,10 +90,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "material-dashboard-angular:build:production"
+              "buildTarget": "product-dashboard-angular:build:production"
             },
             "development": {
-              "buildTarget": "material-dashboard-angular:build:development"
+              "buildTarget": "product-dashboard-angular:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -93,7 +101,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "material-dashboard-angular:build"
+            "buildTarget": "product-dashboard-angular:build"
           }
         },
         "test": {
@@ -105,7 +113,9 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.js",
               "node_modules/popper.js/dist/umd/popper.js",
-              "node_modules/bootstrap-material-design/dist/js/bootstrap-material-design.min.js",
+
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+
               "node_modules/arrive/src/arrive.js",
               "node_modules/moment/moment.js",
               "node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js",
@@ -114,9 +124,7 @@
               "node_modules/alertifyjs/build/alertify.min.js"
             ],
             "styles": [
-              "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
-              "src/assets/scss/material-dashboard.scss",
-              "src/assets/css/demo.css"
+              "node_modules/perfect-scrollbar/css/perfect-scrollbar.css"
             ],
             "assets": [
               "src/assets",

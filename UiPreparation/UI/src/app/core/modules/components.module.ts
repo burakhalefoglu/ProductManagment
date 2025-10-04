@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FooterComponent } from '../components/app/footer/footer.component';
-import { NavbarComponent } from '../components/app/navbar/navbar.component';
-import { SidebarComponent } from '../components/app/sidebar/sidebar.component';
+import { FooterComponent } from '../components/base/footer/footer.component';
+import { NavbarComponent } from '../components/base/navbar/navbar.component';
+import { SidebarComponent } from '../components/base/sidebar/sidebar.component';
 import { TranslateModule } from '@ngx-translate/core';
 
 
@@ -12,11 +12,10 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     RouterModule,
     TranslateModule,
-  ],
-  declarations: [
-    FooterComponent,
-    NavbarComponent,
-    SidebarComponent
+
+      FooterComponent,
+      NavbarComponent,
+      SidebarComponent,
   ],
   exports: [
     FooterComponent,

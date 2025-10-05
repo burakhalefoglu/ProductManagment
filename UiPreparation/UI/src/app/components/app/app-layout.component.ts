@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {NavbarComponent} from './base/navbar/navbar.component';
-import {SidebarComponent} from './base/sidebar/sidebar.component';
-import {FooterComponent} from './base/footer/footer.component';
+import {NavbarComponent} from '../base/navbar/navbar.component';
+import {SidebarComponent} from '../base/sidebar/sidebar.component';
+import {FooterComponent} from '../base/footer/footer.component';
 
 @Component({
     standalone: true,

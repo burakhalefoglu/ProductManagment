@@ -1,7 +1,6 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {JwtHelperService} from '@auth0/angular-jwt';
 import {LoginUser} from '../model/login-user';
 import {TokenModel} from '../model/token-model';
 import {RegisterUser} from '../model/register-user';
@@ -9,6 +8,7 @@ import {environment} from '../../../../../environments/environment';
 import {LocalStorageService} from '../../../../core/services/local-storage.service';
 import {AlertifyService} from '../../../../core/services/Alertify.service';
 import {SharedService} from '../../../../core/services/shared.service';
+import {JwtHelperService} from 'angular-jwt-updated';
 
 
 @Injectable({

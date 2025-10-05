@@ -1,0 +1,35 @@
+<div class="p-4">
+    <h1 class="mb-4">{{ 'PRODUCT.LIST.TITLE' | translate }}</h1>
+
+    <dx-data-grid
+            [dataSource]="products()"         [showBorders]="true"
+            [columnAutoWidth]="true"
+            [hoverStateEnabled]="true"
+    >
+
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager
+                [showPageSizeSelector]="true"
+                [allowedPageSizes]="[10, 20, 50]"
+                [showInfo]="true"
+        ></dxo-pager>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+
+        <dxi-column dataField="id" caption="ID" [width]="70"></dxi-column>
+        <dxi-column dataField="name" caption="{{ 'PRODUCT.NAME' | translate }}"></dxi-column>
+        <dxi-column dataField="unitPrice" caption="{{ 'PRODUCT.PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
+        <dxi-column dataField="unitsInStock" caption="{{ 'PRODUCT.STOCK' | translate }}" dataType="number"></dxi-column>
+
+        <dxi-column caption="{{ 'GENERAL.ACTIONS' | translate }}" [width]="150" cellTemplate="actionCellTemplate"
+                    [allowFiltering]="false" [allowSorting]="false"></dxi-column>
+
+        <div *dxTemplate="let data of 'actionCellTemplate'">
+            <button class="btn btn-sm btn-info me-2" (click)="goToDetail(data.data.id)">
+                {{ 'GENERAL.DETAIL' | translate }}
+            </button>
+        </div>
+
+    </dx-data-grid>
+</div>

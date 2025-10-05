@@ -8,15 +8,15 @@ import { AppComponent } from './app.component';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { ComponentsModule } from './core/modules/components.module';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
-import { LoginGuard } from './core/guards/login-guard';
 import { AuthInterceptorService } from './core/interceptors/auth-interceptor.service';
 import { HttpEntityRepositoryService } from './core/services/http-entity-repository.service';
-import { TranslationService } from './core/services/Translation.service';
-import {SidebarComponent} from './core/components/base/sidebar/sidebar.component';
-import {NavbarComponent} from './core/components/base/navbar/navbar.component';
-import {FooterComponent} from './core/components/base/footer/footer.component';
+import {TranslationService} from './core/services/Translation.service';
+import {SidebarComponent} from './components/base/sidebar/sidebar.component';
+import {NavbarComponent} from './components/base/navbar/navbar.component';
+import {FooterComponent} from './components/base/footer/footer.component';
+import {LoginGuard} from './guards/login-guard';
+import {ComponentsModule} from './modules/components.module';
 
 export function tokenGetter() {
   return localStorage.getItem('token');

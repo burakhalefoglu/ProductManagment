@@ -51,6 +51,8 @@ namespace DataAccess.Concrete.EntityFramework.Contexts
         public DbSet<MobileLogin> MobileLogins { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<Translate> Translates { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Color> Colors { get; set; }
         
         
         protected IConfiguration Configuration { get; }

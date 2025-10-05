@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs/Rx';
-import {AuthService} from './core/components/public/login/Services/Auth.service';
+import {AuthService} from './components/public/login/Services/Auth.service';
 
 export let browserRefresh = false;
 

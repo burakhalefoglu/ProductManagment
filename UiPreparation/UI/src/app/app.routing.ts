@@ -14,6 +14,10 @@ const routes: Routes = [
         path: 'admin',
         loadChildren: () => import('./routing/admin.routes').then(m => m.routes)
     },
+    {
+        path: 'app',
+        loadChildren: () => import('./routing/app.routes').then(m => m.routes)
+    },
 
     { path: '**', redirectTo: 'public/login' }
 ];

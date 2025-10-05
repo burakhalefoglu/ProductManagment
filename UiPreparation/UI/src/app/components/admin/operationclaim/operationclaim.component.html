@@ -1,0 +1,121 @@
+﻿<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger">
+                        <h4 class="card-title text-white">{{'OperationClaimList'|translate}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+
+                            <div class="row mb-3">
+                                <div class="col-md-4 ms-auto"> <div class="form-floating">
+                                    <input type="text" class="form-control" id="claimFilterInput" (keyup)="applyFilter($event)" placeholder="{{'Filter' |translate}}" #input>
+                                    <label for="claimFilterInput">{{"Filter" |translate}}</label>
+                                </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col" (click)="sortData('id')">{{'Id'|translate}}</th>
+                                    <th scope="col" (click)="sortData('name')">{{'Name'|translate}}</th>
+                                    <th scope="col" (click)="sortData('alias')">{{'Alias'|translate}}</th>
+                                    <th scope="col" (click)="sortData('description')">{{'Description'|translate}}</th>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let element of filteredData | slice: (paginator.pageIndex * paginator.pageSize) : ((paginator.pageIndex + 1) * paginator.pageSize)">
+                                    <td>{{element.id}}</td>
+                                    <td>{{element.name}}</td>
+                                    <td>{{element.alias}}</td>
+                                    <td>{{element.description}}</td>
+
+                                    <td style="width: 25px;">
+                                        <a *ngIf="checkClaim('UpdateOperationClaimCommand')" data-bs-toggle="modal" data-bs-target="#operationclaim" (click)="getOperationClaimById(element.id)"><i
+                                                title="{{'Update' | translate}}"  style="color:#ff5722;" class="far fa-edit"></i></a>
+                                    </td>
+                                </tr>
+
+                                <tr *ngIf="(filteredData | slice: (paginator.pageIndex * paginator.pageSize) : ((paginator.pageIndex + 1) * paginator.pageSize)).length === 0">
+                                    <td colspan="5" class="text-center">{{'NoRecordsFound' |translate}} "{{input.value}}"</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-end">
+                                    <li class="page-item" [class.disabled]="paginator.pageIndex === 0">
+                                        <a class="page-link" (click)="onPageChange({pageIndex: paginator.pageIndex - 1, pageSize: paginator.pageSize})" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" *ngFor="let page of getPages()" [class.active]="page === paginator.pageIndex + 1">
+                                        <a class="page-link" (click)="onPageChange({pageIndex: page - 1, pageSize: paginator.pageSize})">{{page}}</a>
+                                    </li>
+                                    <li class="page-item" [class.disabled]="paginator.pageIndex === getTotalPages() - 1 || getTotalPages() === 0">
+                                        <a class="page-link" (click)="onPageChange({pageIndex: paginator.pageIndex + 1, pageSize: paginator.pageSize})" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="text-end text-muted small">
+                                    {{paginator.pageIndex * paginator.pageSize + 1}} - {{ (paginator.pageIndex + 1) * paginator.pageSize > paginator.length ? paginator.length : (paginator.pageIndex + 1) * paginator.pageSize }} / {{paginator.length}}
+                                </div>
+                            </nav>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="operationclaim" tabindex="-1" aria-labelledby="operationClaimModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"
+                        (click)="clearFormGroup(operationClaimAddForm)"></button>
+                <h4 class="mt-3">
+                    {{'OperationClaimForm'| translate}}
+                </h4>
+                <div class="separator mb-4"></div>
+                <form *ngIf="operationClaimAddForm" [formGroup]="operationClaimAddForm" (ngSubmit)="save()">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="alias" placeholder="{{'Alias'|translate}}"
+                                       formControlName="alias" />
+                                <label for="alias">{{'Alias'|translate}}</label>
+                                <div class="alert alert-danger p-1 mt-1"
+                                     *ngIf="operationClaimAddForm.get('alias')!.hasError('alias') && operationClaimAddForm.get('alias')!.dirty">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="description" placeholder="{{'Description'|translate}}"
+                                       formControlName="description" />
+                                <label for="description">{{'Description'|translate}}</label>
+                                <div class="alert alert-danger p-1 mt-1"
+                                     *ngIf="operationClaimAddForm.get('description')!.hasError('description') && operationClaimAddForm.get('description')!.dirty">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger float-end">{{'Save' |translate}}</button>
+                    <div class="clearfix"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

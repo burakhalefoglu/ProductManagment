@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <h2 class="navbar-nav ms-auto align-items-center">{{ pageTitle() | translate }}</h2>
         <ul class="navbar-nav ms-auto align-items-center">
-            <li class="dropdown-item-text">Hoş geldiniz, {{ userName }}</li>
+            <li class="dropdown-item-text">{{ 'Welcome' | translate }}, {{ userNameSignal() }}</li>
         </ul>
     </div>
 </header>
@@ -13,11 +13,11 @@
     <!-- Branding -->
     <div class="sidebar-brand">
         <div class="d-flex align-items-center">
-            <img src="assets/images/app-logo.svg" alt="logo" width="20" class="me-2">
-            <span>Product Management</span>
+            <img src="assets/images/app-logo.svg" [attr.alt]="'Logo' | translate" width="20" class="me-2">
+            <span>{{ 'ProductManagement' | translate }}</span>
         </div>
         <!-- Sadece mobilde görünür: Kapat -->
-        <button class="btn btn-sm d-xl-none" (click)="toggleSidebar()" aria-label="Close sidebar">
+        <button class="btn btn-sm d-xl-none" (click)="toggleSidebar()" [attr.aria-label]="'CloseSidebar' | translate">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
@@ -30,8 +30,8 @@
             <li class="nav-item">
                 <a class="nav-link d-flex justify-content-between align-items-center"
                    data-bs-toggle="collapse" href="#adminSubmenu" role="button" aria-expanded="false">
-                    <span><i class="bi bi-columns-gap me-2"></i>ADMIN</span>
-                    <i class="bi bi-chevron-down"></i>
+                    <span><i class="fa fa-columns me-2"></i>{{ 'ADMIN' | translate }}</span>
+                    <i class="fa fa-chevron-down"></i>
                 </a>
                 <ul class="collapse nav flex-column ms-3" id="adminSubmenu">
                     <li *ngFor="let menuItem of adminMenuItems"
@@ -49,8 +49,8 @@
             <li class="nav-item">
                 <a class="nav-link d-flex justify-content-between align-items-center"
                    data-bs-toggle="collapse" href="#appSubmenu" role="button" aria-expanded="false">
-                    <span><i class="bi bi-columns-gap me-2"></i>APP</span>
-                    <i class="bi bi-chevron-down"></i>
+                    <span><i class="fa fa-th-large me-2"></i>{{ 'APP' | translate }}</span>
+                    <i class="fa fa-chevron-down"></i>
                 </a>
                 <ul class="collapse nav flex-column ms-3" id="appSubmenu">
                     <li *ngFor="let menuItem of userMenuItems"
@@ -69,15 +69,10 @@
 
     <!-- Footer -->
     <div class="sidebar-footer">
-        <a class="nav-link d-flex align-items-center" [routerLink]="['/app/profile']">
-            <i class="fa fa-user me-2"></i>
-            <span>Profil</span>
-        </a>
-
-        <a class="nav-link d-flex align-items-center" (click)="logOut()">
+       <a class="nav-link d-flex align-items-center" (click)="logOut()">
             <i class="fa fa-sign-out-alt me-2"></i>
-            <span>Çıkış Yap</span>
-        </a>
+            <span>{{ 'Logout' | translate }}</span>
+       </a>
     </div>
 </aside>
 
@@ -90,6 +85,6 @@
 <button class="btn btn-primary sidebar-fab d-xl-none"
         type="button"
         (click)="toggleSidebar()"
-        aria-label="Open sidebar">
+        [attr.aria-label]="'OpenSidebar' | translate">
     <i class="fas fa-bars"></i>
 </button>

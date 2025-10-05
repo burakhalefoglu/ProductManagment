@@ -1,7 +1,7 @@
 services:
-  api_isikmedia_dev:
-    hostname: api_isikmedia_dev
-    container_name: api_isikmedia_dev
+  api_product_management_dev:
+    hostname: api_product_management_dev
+    container_name: api_product_management_dev
     build:
       context: ./
       dockerfile: Dockerfile
@@ -12,11 +12,11 @@ services:
       ASPNETCORE_ENVIRONMENT: 'Staging'
     labels:
           - "traefik.enable=true"
-          - "traefik.http.routers.apiisik_dev.rule=Host(`dev.api.isik.media`)"
-          - "traefik.http.routers.apiisik_dev.entrypoints=websecure"
-          - "traefik.http.routers.apiisik_dev.tls.certresolver=letsencrypt"
-          - "traefik.http.services.apiisik_dev.loadbalancer.server.port=80"
-          - "traefik.http.routers.apiisik_dev.middlewares=ratelimit@file,compress@file"
+          - "traefik.http.routers.api_productmanagement_dev.rule=Host(`dev.api.productmanagementcase.burakhalefoglu.com`)"
+          - "traefik.http.routers.api_productmanagement_dev.entrypoints=websecure"
+          - "traefik.http.routers.api_productmanagement_dev.tls.certresolver=letsencrypt"
+          - "traefik.http.services.api_productmanagement_dev.loadbalancer.server.port=80"
+          - "traefik.http.routers.api_productmanagement_dev.middlewares=ratelimit@file,compress@file"
     networks:
       - log-net
       - traefik-net
@@ -36,31 +36,29 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  portal_isikmedia_dev:
-    hostname: portal_isikmedia_dev
-    container_name: portal_isikmedia_dev
+  product_management_dev:
+    hostname: product_management_dev
+    container_name: product_management_dev
     build:
-      context: ./UiPreparation/FlutterUi/flutter_devarchitecture
+      context: ./UiPreparation/UI # Path to the build folder
       dockerfile: Dockerfile
       args:
-        URL: "https://dev.api.isik.media/api/v1"
-        FIREBASE: "false"
-        ENVIRONMENT: "staging"
+        URL: "https://dev.api.productmanagementcase.burakhalefoglu.com/api/v1"
     restart: unless-stopped
     expose:
       - 3000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portalisik_dev.rule=Host(`dev.portal.isik.media`)"
-      - "traefik.http.routers.portalisik_dev.entrypoints=websecure"
-      - "traefik.http.routers.portalisik_dev.tls.certresolver=letsencrypt"
-      - "traefik.http.services.portalisik_dev.loadbalancer.server.port=3000"
-      - "traefik.http.routers.portalisik_dev.middlewares=ratelimit@file,compress@file"
+      - "traefik.http.routers.productmanagement_dev.rule=Host(`dev.productmanagementcase.burakhalefoglu.com`)"
+      - "traefik.http.routers.productmanagement_dev.entrypoints=websecure"
+      - "traefik.http.routers.productmanagement_dev.tls.certresolver=letsencrypt"
+      - "traefik.http.services.productmanagement_dev.loadbalancer.server.port=3000"
+      - "traefik.http.routers.productmanagement_dev.middlewares=ratelimit@file,compress@file"
     networks:
       - log-net
       - traefik-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/#/healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -75,7 +73,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
 
 networks:
   log-net:

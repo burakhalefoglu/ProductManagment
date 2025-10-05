@@ -3,15 +3,15 @@ pipeline {
 
     environment {
         // 🔧 Proje Bilgileri
-        PROJECT_NAME = "ArtistPlatform"
-        GIT_REPO_URL = "https://github.com/burakhalefoglu-official/ArtistPlatform.git"
+        PROJECT_NAME = "ProductManagment"
+        GIT_REPO_URL = "https://github.com/burakhalefoglu/ProductManagment.git"
         GIT_CREDENTIALS_ID = "github-pat"
 
         // 🚀 Servis İsimleri
-        SERVICE_API = "api_isikmedia_dev"
-        SERVICE_APP = "portal_isikmedia_dev"
-        SERVICE_API_BLUE = "api_isikmedia_blue_dev"
-        SERVICE_APP_BLUE = "portal_isikmedia_blue_dev"
+        SERVICE_API = "api_product_management_dev"
+        SERVICE_APP = "product_management_dev"
+        SERVICE_API_BLUE = "api_product_management_blue_dev"
+        SERVICE_APP_BLUE = "product_management_blue_dev"
 
         // 🐳 Compose Dosyaları
         COMPOSE_MAIN = "docker-compose-dev.yaml"

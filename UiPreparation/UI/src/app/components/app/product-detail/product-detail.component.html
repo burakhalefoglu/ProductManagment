@@ -29,7 +29,7 @@
                 <ul class="list-group list-group-flush">
                     <li *ngFor="let color of p.colors" class="list-group-item d-flex justify-content-between align-items-center">
                         {{ color.colorName || color }}
-                        <span class="badge bg-secondary rounded-pill">Renk</span>
+                        <span class="badge bg-secondary rounded-pill">{{ 'PRODUCT.COLOR' | translate }}</span>
                     </li>
                 </ul>
             </div>

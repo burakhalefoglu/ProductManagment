@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule, } from '@angular/common';
 import { BrowserModule  } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
+import { HealthcheckComponent } from './components/public/healthcheck/healthcheck.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'public/login', pathMatch: 'full' },
@@ -18,6 +19,8 @@ const routes: Routes = [
         path: 'app',
         loadChildren: () => import('./routing/app.routes').then(m => m.routes)
     },
+
+    { path: 'healthcheck', component: HealthcheckComponent},
 
     { path: '**', redirectTo: 'public/login' }
 ];

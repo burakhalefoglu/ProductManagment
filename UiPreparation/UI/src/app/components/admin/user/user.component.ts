@@ -1,25 +1,34 @@
 import {
-    AfterViewInit, ChangeDetectionStrategy,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     OnInit,
 } from '@angular/core';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {IDropdownSettings, NgMultiSelectDropDownModule} from 'ng-multiselect-dropdown';
-import { PasswordDto } from './models/passwordDto';
-import { User } from './models/User';
-import { UserService } from './Services/User.service';
-import {AuthService} from '../../public/login/Services/Auth.service';
-import {CommonModule} from '@angular/common';
-import {TranslateModule} from '@ngx-translate/core';
-import {SwalComponent, SwalDirective} from '@sweetalert2/ngx-sweetalert2';
-import {LookUp} from '../../../core/models/LookUp';
-import {AlertifyService} from '../../../core/services/Alertify.service';
-import {LookUpService} from '../../../core/services/LookUp.service';
-import {environment} from '../../../../environments/environment';
-import {MustMatch} from '../../../core/directives/must-match';
-import {TitleService} from '../../../core/services/title.service';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
-declare var jQuery: any;
+import { User } from './models/User';
+import { PasswordDto } from './models/passwordDto';
+import { UserService } from './Services/User.service';
+import { AuthService } from '../../public/login/Services/Auth.service';
+import { AlertifyService } from '../../../core/services/Alertify.service';
+import { LookUp } from '../../../core/models/LookUp';
+import { LookUpService } from '../../../core/services/LookUp.service';
+import { TitleService } from '../../../core/services/title.service';
+import { MustMatch } from '../../../core/directives/must-match';
+
+// DevExtreme
+import {
+    DxDataGridModule,
+    DxPopupModule,
+    DxButtonModule,
+    DxFormModule,
+    DxValidatorModule,
+    DxTagBoxModule,
+    DxLoadIndicatorModule,
+} from 'devextreme-angular';
 
 @Component({
     selector: 'app-user',
@@ -30,57 +39,40 @@ declare var jQuery: any;
     imports: [
         CommonModule,
         TranslateModule,
-        NgMultiSelectDropDownModule,
-        FormsModule,
         ReactiveFormsModule,
-        SwalDirective,
-        SwalComponent,
-    ]
+
+        DxDataGridModule,
+        DxPopupModule,
+        DxButtonModule,
+        DxFormModule,
+        DxValidatorModule,
+        DxTagBoxModule,
+        DxLoadIndicatorModule,
+    ],
 })
 export class UserComponent implements AfterViewInit, OnInit {
-
     userList: User[] = [];
-    filteredData: User[] = [];
+    isLoading = false;
 
-    paginator = {
-        pageIndex: 0,
-        pageSize: 10,
-        pageSizeOptions: [10, 25, 50, 100],
-        length: 0,
-    };
-    currentSortColumn = 'userId';
-    currentSortDirection: 'asc' | 'desc' = 'asc';
+    // popuplar
+    userFormVisible = false;
+    pwdFormVisible = false;
+    groupPermVisible = false;
+    claimPermVisible = false;
+    deleteConfirmVisible = false;
 
-    displayedColumns: string[] = [
-        'userId',
-        'email',
-        'fullName',
-        'status',
-        'mobilePhones',
-        'address',
-        'notes',
-        'passwordChange',
-        'updateClaim',
-        'updateGroupClaim',
-        'update',
-        'delete',
-    ];
-
-    user!: User;
-    groupDropdownList!: LookUp[];
-    groupSelectedItems!: LookUp[];
-    dropdownSettings!: IDropdownSettings;
-
-    claimDropdownList!: LookUp[];
-    claimSelectedItems!: LookUp[];
-
-    isGroupChange = false;
-    isClaimChange = false;
-
-    userId!: number | undefined;
-
+    // formlar & modeller
     userAddForm!: FormGroup;
     passwordForm!: FormGroup;
+
+    userModel!: User;
+    activeUserId?: number;
+
+    // lookup & seçimler
+    groupDropdownList: LookUp[] = [];
+    claimDropdownList: LookUp[] = [];
+    groupSelectedIds: number[] = [];
+    claimSelectedIds: number[] = [];
 
     constructor(
         private userService: UserService,
@@ -89,98 +81,44 @@ export class UserComponent implements AfterViewInit, OnInit {
         private lookUpService: LookUpService,
         private authService: AuthService,
         private titleService: TitleService,
+        private cdr: ChangeDetectorRef
     ) {}
+
+    ngOnInit(): void {
+        this.titleService.setPageTitle('Users');
+        this.createUserAddForm();
+        this.createPasswordForm();
+
+        this.lookUpService.getGroupLookUp().subscribe({
+            next: (data) => { this.groupDropdownList = Array.isArray(data) ? [...data] : []; this.cdr.markForCheck(); },
+            error: () => this.cdr.markForCheck(),
+        });
+
+        this.lookUpService.getOperationClaimLookUp().subscribe({
+            next: (data) => { this.claimDropdownList = Array.isArray(data) ? [...data] : []; this.cdr.markForCheck(); },
+            error: () => this.cdr.markForCheck(),
+        });
+    }
 
     ngAfterViewInit(): void {
         this.getUserList();
     }
 
-    ngOnInit() {
-        this.titleService.setPageTitle('Users');
-        this.createUserAddForm();
-        this.createPasswordForm();
-
-        this.dropdownSettings = environment.getDropDownSetting;
-
-        this.lookUpService.getGroupLookUp().subscribe((data) => {
-            this.groupDropdownList = data;
-        });
-
-        this.lookUpService.getOperationClaimLookUp().subscribe((data) => {
-            this.claimDropdownList = data;
+    // === Data ===
+    getUserList(): void {
+        this.isLoading = true;
+        this.userService.getUserList().subscribe({
+            next: (data) => {
+                this.userList = Array.isArray(data) ? [...data] : [];
+                this.isLoading = false;
+                this.cdr.markForCheck();
+            },
+            error: () => { this.isLoading = false; this.cdr.markForCheck(); },
         });
     }
 
-    getUserGroupPermissions(userId: number | undefined) {
-        this.userId = userId;
-
-        this.userService.getUserGroupPermissions(userId).subscribe((data) => {
-            this.groupSelectedItems = data;
-        });
-    }
-
-    getUserClaimsPermissions(userId: number | undefined) {
-        this.userId = userId;
-
-        this.userService.getUserClaims(userId).subscribe((data) => {
-            this.claimSelectedItems = data;
-        });
-    }
-
-    saveUserGroupsPermissions() {
-        if (this.isGroupChange) {
-            const ids = this.groupSelectedItems.map(function (x) {
-                return x.id as number;
-            });
-            this.userService.saveUserGroupPermissions(this.userId, ids).subscribe(
-                (x) => {
-                    jQuery('#groupPermissions').modal('hide');
-                    this.isGroupChange = false;
-                    this.alertifyService.success(x);
-                },
-                (error) => {
-                    this.alertifyService.error(error.error);
-                    jQuery('#groupPermissions').modal('hide');
-                }
-            );
-        }
-    }
-
-    saveUserClaimsPermission() {
-        if (this.isClaimChange) {
-            const ids = this.claimSelectedItems.map(function (x) {
-                return x.id as number;
-            });
-            this.userService.saveUserClaims(this.userId, ids).subscribe(
-                (x) => {
-                    jQuery('#claimsPermissions').modal('hide');
-                    this.isClaimChange = false;
-                    this.alertifyService.success(x);
-                },
-                (error) => {
-                    this.alertifyService.error(error.error);
-                    jQuery('#claimsPermissions').modal('hide');
-                }
-            );
-        }
-    }
-
-    onItemSelect(comboType: string) {
-        this.setComboStatus(comboType);
-    }
-
-    onSelectAll(comboType: string) {
-        this.setComboStatus(comboType);
-    }
-    onItemDeSelect(comboType: string) {
-        this.setComboStatus(comboType);
-    }
-
-    setComboStatus(comboType: string) {
-        if (comboType === 'Group') { this.isGroupChange = true; } else if (comboType === 'Claim') { this.isClaimChange = true; }
-    }
-
-    createUserAddForm() {
+    // === Formlar ===
+    createUserAddForm(): void {
         this.userAddForm = this.formBuilder.group({
             userId: [0],
             fullName: ['', Validators.required],
@@ -192,182 +130,180 @@ export class UserComponent implements AfterViewInit, OnInit {
         });
     }
 
-    createPasswordForm() {
+    createPasswordForm(): void {
         this.passwordForm = this.formBuilder.group(
             {
                 password: ['', Validators.required],
                 confirmPassword: ['', Validators.required],
             },
-            {
-                validator: MustMatch('password', 'confirmPassword'),
-            }
+            { validators: MustMatch('password', 'confirmPassword') }
         );
     }
 
-    getUserList() {
-        this.userService.getUserList().subscribe((data) => {
-            this.userList = data;
-            this.filteredData = data; // Başlangıçta tüm veriler filtrelenmiş kabul edilir
-            this.paginator.length = data.length;
-            this.sortData(this.currentSortColumn, true); // Varsayılan sıralama
-        });
-    }
-
-    clearFormGroup(group: FormGroup) {
+    clearFormGroup(group: FormGroup): void {
         group.markAsUntouched();
         group.reset();
-
         Object.keys(group.controls).forEach((key) => {
             const control = group.get(key);
-            if (control) {
-                control.setErrors(null);
-                if (key === 'userId') { control.setValue(0); } else if (key === 'status') { control.setValue(true); }
-            }
+            if (!control) return;
+            control.setErrors(null);
+            if (key === 'userId') control.setValue(0);
+            if (key === 'status') control.setValue(true);
         });
     }
 
-    setUserId(id: number | undefined) {
-        this.userId = id;
+    // === CRUD User ===
+    openCreate(): void {
+        this.clearFormGroup(this.userAddForm);
+        this.userModel = { userId: 0, fullName: '', email: '', address: '', notes: '', mobilePhones: '', status: true } as User;
+        this.userFormVisible = true;
     }
 
-    save() {
-        if (this.userAddForm.valid) {
-            this.user = Object.assign({}, this.userAddForm.value);
-
-            if (this.user.userId === 0) { this.addUser(); } else { this.updateUser(); }
-        }
+    openEdit(event: any): void {
+        var id = event.row?.data.userId;
+        if (id == null) return;
+        this.clearFormGroup(this.userAddForm);
+        this.userService.getUserById(id).subscribe({
+            next: (data) => {
+                this.userModel = data;
+                this.userAddForm.patchValue(data);
+                this.userFormVisible = true;
+                this.cdr.markForCheck();
+            },
+            error: () => this.cdr.markForCheck(),
+        });
     }
 
-    savePassword() {
-        if (this.passwordForm.valid) {
-            const passwordDto: PasswordDto = new PasswordDto();
-            passwordDto.userId = this.userId;
-            passwordDto.password = this.passwordForm.value.password;
+    saveUser(): void {
+        if (!this.userAddForm.valid) return;
+        this.userModel = { ...this.userModel, ...this.userAddForm.value };
 
-            this.userService.saveUserPassword(passwordDto).subscribe((data) => {
-                this.userId = 0;
-                jQuery('#passwordChange').modal('hide');
-                this.alertifyService.success(data);
-                this.clearFormGroup(this.passwordForm);
+        if (!this.userModel.userId || this.userModel.userId === 0) {
+            this.userService.addUser(this.userModel).subscribe({
+                next: (msg) => {
+                    this.getUserList();
+                    this.userFormVisible = false;
+                    this.alertifyService.success(msg);
+                    this.clearFormGroup(this.userAddForm);
+                    this.cdr.markForCheck();
+                },
+                error: () => this.cdr.markForCheck(),
+            });
+        } else {
+            this.userService.updateUser(this.userModel).subscribe({
+                next: (msg) => {
+                    const i = this.userList.findIndex((x) => x.userId === this.userModel.userId);
+                    if (i !== -1) {
+                        this.userList[i] = { ...this.userModel };
+                        this.userList = [...this.userList];
+                    }
+                    this.userFormVisible = false;
+                    this.alertifyService.success(msg);
+                    this.clearFormGroup(this.userAddForm);
+                    this.cdr.markForCheck();
+                },
+                error: () => this.cdr.markForCheck(),
             });
         }
     }
 
-    addUser() {
-        this.userService.addUser(this.user).subscribe((data) => {
-            this.getUserList();
-            this.user = new User();
-            jQuery('#user').modal('hide');
-            this.alertifyService.success(data);
-            this.clearFormGroup(this.userAddForm);
+    askDelete(event: any): void {
+        var id = event.row?.data.userId;
+        if (id == null) return;
+        this.activeUserId = id;
+        this.deleteConfirmVisible = true;
+    }
+
+    deleteUser(id: number | undefined): void {
+        if (id == null) return;
+        this.userService.deleteUser(id).subscribe({
+            next: (msg) => {
+                this.alertifyService.success(msg.toString());
+                const idx = this.userList.findIndex((x) => x.userId === id);
+                if (idx !== -1) {
+                    // senin akışında delete "status=false" yapıyor
+                    this.userList[idx] = { ...this.userList[idx], status: false };
+                    this.userList = [...this.userList];
+                }
+                this.deleteConfirmVisible = false;
+                this.activeUserId = undefined;
+                this.cdr.markForCheck();
+            },
+            error: () => this.cdr.markForCheck(),
         });
     }
 
-    getUserById(id: number | undefined) {
-        this.clearFormGroup(this.userAddForm);
-        this.userService.getUserById(id).subscribe((data) => {
-            this.user = data;
-            this.userAddForm.patchValue(data);
+    // === Şifre Değiştirme ===
+    openPasswordChange(event: any): void {
+        var id = event.row?.data.userId;
+        if (id == null) return;
+        this.activeUserId = id;
+        this.clearFormGroup(this.passwordForm);
+        this.pwdFormVisible = true;
+    }
+
+    savePassword(): void {
+        if (!this.passwordForm.valid || this.activeUserId == null) return;
+        const dto: PasswordDto = { userId: this.activeUserId, password: this.passwordForm.value.password } as PasswordDto;
+        this.userService.saveUserPassword(dto).subscribe({
+            next: (msg) => {
+                this.activeUserId = undefined;
+                this.pwdFormVisible = false;
+                this.alertifyService.success(msg);
+                this.clearFormGroup(this.passwordForm);
+                this.cdr.markForCheck();
+            },
+            error: () => this.cdr.markForCheck(),
         });
     }
 
-    updateUser() {
-        this.userService.updateUser(this.user).subscribe((data) => {
-            const index = this.userList.findIndex((x) => x.userId === this.user.userId);
-            this.userList[index] = this.user;
-            this.filteredData = [...this.userList];
-            this.sortData(this.currentSortColumn, true);
-            this.user = new User();
-            jQuery('#user').modal('hide');
-            this.alertifyService.success(data);
-            this.clearFormGroup(this.userAddForm);
+    // === Grup / Claim Yetkileri ===
+    openGroupPermissions(event: any): void {
+        var id = event.row?.data.userId;
+        if (id == null) return;
+        this.activeUserId = id;
+        this.userService.getUserGroupPermissions(id).subscribe({
+            next: (data: LookUp[]) => {
+                this.groupSelectedIds = (data || []).map((x) => x.id as number);
+                this.groupPermVisible = true;
+                this.cdr.markForCheck();
+            },
+            error: () => this.cdr.markForCheck(),
         });
     }
 
-    deleteUser(id: number | undefined) {
-        this.userService.deleteUser(id).subscribe((data) => {
-            this.alertifyService.success(data.toString());
-            // tslint:disable-next-line:triple-equals
-            const index = this.userList.findIndex((x) => x.userId == id);
-            this.userList[index].status = false;
-            this.filteredData = [...this.userList];
-            this.sortData(this.currentSortColumn, true);
+    openClaimPermissions(event: any): void {
+        var id = event.row?.data.userId;
+        if (id == null) return;
+        this.activeUserId = id;
+        this.userService.getUserClaims(id).subscribe({
+            next: (data: LookUp[]) => {
+                this.claimSelectedIds = (data || []).map((x) => x.id as number);
+                this.claimPermVisible = true;
+                this.cdr.markForCheck();
+            },
+            error: () => this.cdr.markForCheck(),
         });
     }
 
+    saveUserGroupsPermissions(): void {
+        const ids = this.groupSelectedIds || [];
+        this.userService.saveUserGroupPermissions(this.activeUserId, ids).subscribe({
+            next: (x) => { this.groupPermVisible = false; this.alertifyService.success(x); this.cdr.markForCheck(); },
+            error: (err) => { this.alertifyService.error(err?.error); this.groupPermVisible = false; this.cdr.markForCheck(); },
+        });
+    }
+
+    saveUserClaimsPermission(): void {
+        const ids = this.claimSelectedIds || [];
+        this.userService.saveUserClaims(this.activeUserId, ids).subscribe({
+            next: (x) => { this.claimPermVisible = false; this.alertifyService.success(x); this.cdr.markForCheck(); },
+            error: (err) => { this.alertifyService.error(err?.error); this.claimPermVisible = false; this.cdr.markForCheck(); },
+        });
+    }
+
+    // === Auth ===
     checkClaim(claim: string): boolean {
         return this.authService.claimGuard(claim);
-    }
-
-    // configDataTable metodu kaldırıldı.
-
-    // *** Yeni Manuel Sıralama Metodu ***
-    sortData(sortColumn: string, isInitialSort = false): void {
-        if (this.currentSortColumn === sortColumn && !isInitialSort) {
-            this.currentSortDirection = this.currentSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.currentSortDirection = 'asc';
-        }
-
-        this.currentSortColumn = sortColumn;
-
-        this.filteredData.sort((a, b) => {
-            const aValue = (a as any)[sortColumn];
-            const bValue = (b as any)[sortColumn];
-
-            let comparison = 0;
-            if (aValue > bValue) {
-                comparison = 1;
-            } else if (aValue < bValue) {
-                comparison = -1;
-            }
-
-            // 'status' alanı boolean olduğu için özel işlem gerekebilir
-            if (sortColumn === 'status') {
-                comparison = aValue === bValue ? 0 : aValue ? 1 : -1;
-            }
-
-            return this.currentSortDirection === 'asc' ? comparison : comparison * -1;
-        });
-    }
-
-    // *** Yeni Manuel Filtreleme Metodu ***
-    applyFilter(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-
-        this.filteredData = this.userList.filter(user => {
-            const idMatch = user.userId !== undefined && user.userId !== null ? user.userId.toString().includes(filterValue) : false;
-            const emailMatch = user.email ? user.email.toLowerCase().includes(filterValue) : false;
-            const fullNameMatch = user.fullName ? user.fullName.toLowerCase().includes(filterValue) : false;
-            const mobilePhonesMatch = user.mobilePhones ? user.mobilePhones.toLowerCase().includes(filterValue) : false;
-            const addressMatch = user.address ? user.address.toLowerCase().includes(filterValue) : false;
-            const notesMatch = user.notes ? user.notes.toLowerCase().includes(filterValue) : false;
-
-            // Status filtrelemesi (örneğin "true" veya "false" aratılabilir)
-            const statusMatch = user.status !== undefined && user.status !== null
-                ? user.status.toString().toLowerCase().includes(filterValue)
-                : false;
-
-            return idMatch || emailMatch || fullNameMatch || mobilePhonesMatch || addressMatch || notesMatch || statusMatch;
-        });
-
-        this.paginator.length = this.filteredData.length;
-        this.paginator.pageIndex = 0; // İlk sayfaya dön
-        this.sortData(this.currentSortColumn, true); // Filtrelenmiş veriye sıralamayı uygula
-    }
-
-    // *** Sayfalama Yardımcı Metotları ***
-    onPageChange(event: { pageIndex: number, pageSize: number }) {
-        this.paginator.pageIndex = event.pageIndex;
-        this.paginator.pageSize = event.pageSize;
-    }
-
-    getTotalPages(): number {
-        return Math.ceil(this.paginator.length / this.paginator.pageSize);
-    }
-
-    getPages(): number[] {
-        const total = this.getTotalPages();
-        return Array.from({ length: total }, (_, i) => i + 1);
     }
 }

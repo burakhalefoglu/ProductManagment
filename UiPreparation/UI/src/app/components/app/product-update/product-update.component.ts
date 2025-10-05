@@ -6,6 +6,7 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpEntityRepositoryService} from '../../../core/services/http-entity-repository.service';
 import {TitleService} from '../../../core/services/title.service';
 import {Product} from '../models/product';
+import {AlertifyService} from '../../../core/services/Alertify.service';
 
 @Component({
     standalone: true,
@@ -28,7 +29,8 @@ export class ProductUpdateComponent implements OnInit {
                 private route: ActivatedRoute,
                 private router: Router,
                 private destroyRef: DestroyRef,
-                private titleService: TitleService) {
+                private titleService: TitleService,
+                private alertifyService: AlertifyService) {
     }
     ngOnInit(): void {
         this.productId = Number(this.route.snapshot.paramMap.get('id'));
@@ -119,7 +121,7 @@ export class ProductUpdateComponent implements OnInit {
             this.productRepo.update('/Products', finalProduct)
                 .subscribe({
                     next: () => {
-                        alert(`Ürün ID: ${this.productId} başarıyla güncellendi!`);
+                        this.alertifyService.success(`Ürün ID: ${this.productId} başarıyla güncellendi!`)
                         this.router.navigate(['/app/products']);
                     },
                     error: (err) => {

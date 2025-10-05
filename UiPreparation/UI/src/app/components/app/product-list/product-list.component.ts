@@ -24,11 +24,9 @@ import {Product} from '../models/product';
 export class ProductListComponent implements OnInit {
     @ViewChild(DxDataGridComponent) dataGrid!: DxDataGridComponent;
 
-    // signal as single source of truth for your Angular app logic
     private readonly _products: WritableSignal<Product[]> = signal([]);
     public readonly products: Signal<Product[]> = this._products.asReadonly();
 
-    // optional: DevExtreme DataSource backed by ArrayStore (daha güvenli)
     public dxDataSource: DataSource = new DataSource({
         store: new ArrayStore({ data: [], key: 'id' })
     });
@@ -99,4 +97,14 @@ export class ProductListComponent implements OnInit {
     openCreatePage() {
         this.router.navigate(['/app/products/add/']);
     }
+    formatCurrency = (e: any) => {
+        if (e?.value == null) return '';
+        const formatted = e.value.toLocaleString('tr-TR', {
+            style: 'currency',
+            currency: 'TRY',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        return `Toplam: ${formatted}`;
+    };
 }

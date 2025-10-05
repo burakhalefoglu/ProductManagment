@@ -6,7 +6,7 @@
                 <h5 class="mb-0 text-primary fw-bold">{{ 'PRODUCT.LIST.TITLE' | translate }}</h5>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-outline-secondary btn-sm" (click)="fetchProducts()" title="Reload">
+                <button class="btn btn-outline-secondary btn-sm" (click)="fetchProducts()" [title]="'GENERAL.RELOAD' | translate">
                     <i class="fas fa-sync-alt"></i>
                 </button>
                 <button class="btn btn-success btn-sm" (click)="openCreatePage()">
@@ -14,10 +14,14 @@
                 </button>
             </div>
         </div>
+
         <div class="card-body p-3">
             <div class="row mb-2">
                 <div class="col-12 col-md-6">
-                    <input class="form-control form-control-sm" placeholder="{{ 'GENERAL.SEARCH_PLACEHOLDER' | translate }}" (input)="dataGrid.instance.option('searchPanel', { text: $any($event.target).value })" />
+                    <input
+                            class="form-control form-control-sm"
+                            [placeholder]="'GENERAL.SEARCH_PLACEHOLDER' | translate"
+                            (input)="dataGrid.instance.option('searchPanel', { text: $any($event.target).value })" />
                 </div>
             </div>
 
@@ -32,11 +36,11 @@
                     [height]="600"
                     [noDataText]="'GENERAL.NO_DATA_AVAILABLE' | translate">
 
-                    <!-- Search panel (inside grid, correct place) -->
+                    <!-- Search panel -->
                     <dxo-search-panel [visible]="true" [width]="300" [placeholder]="'GENERAL.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
 
-                    <!-- Toolbar controls that must be inside grid -->
-                    <dxo-export [enabled]="true" fileName="Products" [allowExportSelectedData]="true"></dxo-export>
+                    <!-- Toolbar controls -->
+                    <dxo-export [enabled]="true" [fileName]="'PRODUCT.LIST.EXPORT_FILENAME' | translate" [allowExportSelectedData]="true"></dxo-export>
                     <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
                     <dxo-group-panel [visible]="true"></dxo-group-panel>
 
@@ -52,15 +56,19 @@
                     <dxo-selection mode="single"></dxo-selection>
 
                     <!-- Columns -->
-                    <dxi-column dataField="id" caption="ID" [width]="80" alignment="center" [fixed]="true" cellTemplate="idCellTemplate"></dxi-column>
-                    <dxi-column dataField="name" caption="{{ 'PRODUCT.NAME' | translate }}"></dxi-column>
-                    <dxi-column dataField="unitPrice" caption="{{ 'PRODUCT.PRICE' | translate }}" dataType="number" format="#,##0.00 '₺'"></dxi-column>
-                    <dxi-column dataField="unitsInStock" caption="{{ 'PRODUCT.STOCK' | translate }}" dataType="number" alignment="center" cellTemplate="stockCellTemplate"></dxi-column>
-                    <dxi-column caption="{{ 'GENERAL.ACTIONS' | translate }}" cellTemplate="actionCellTemplate" [allowFiltering]="false" [width]="150" [allowSorting]="false" alignment="center"></dxi-column>
+                    <dxi-column dataField="id" [caption]="'ID' | translate" [width]="80" alignment="center" [fixed]="true" cellTemplate="idCellTemplate"></dxi-column>
+                    <dxi-column dataField="name" [caption]="'PRODUCT.NAME' | translate"></dxi-column>
+                    <dxi-column dataField="unitPrice" [caption]="'PRODUCT.PRICE' | translate" dataType="number" format="#,##0.00 '₺'"></dxi-column>
+                    <dxi-column dataField="unitsInStock" [caption]="'PRODUCT.STOCK' | translate" dataType="number" alignment="center" cellTemplate="stockCellTemplate"></dxi-column>
+                    <dxi-column [caption]="'GENERAL.ACTIONS' | translate" cellTemplate="actionCellTemplate" [allowFiltering]="false" [width]="150" [allowSorting]="false" alignment="center"></dxi-column>
 
-                    <!-- Summary: use dxo-summary at grid level -->
+                    <!-- Summary -->
                     <dxo-summary>
-                        <dxi-total-item column="unitPrice" summaryType="sum" displayFormat="Toplam: {0} ₺"></dxi-total-item>
+                        <dxi-total-item
+                                column="unitPrice"
+                                summaryType="sum"
+                                [customizeText]="formatCurrency">
+                        </dxi-total-item>
                     </dxo-summary>
 
                     <!-- Templates -->
@@ -69,13 +77,17 @@
                     </div>
 
                     <div *dxTemplate="let data of 'stockCellTemplate'">
-                    <span [class]="
-                      data.value > 20 ? 'badge bg-success px-2 py-1' :
-                      (data.value > 0 ? 'badge bg-warning text-dark px-2 py-1' : 'badge bg-danger px-2 py-1')">
-                      {{ data.text }}
-                    </span></div>
+            <span
+                    [class]="
+                data.value > 20 ? 'badge bg-success px-2 py-1' :
+                (data.value > 0 ? 'badge bg-warning text-dark px-2 py-1' : 'badge bg-danger px-2 py-1')
+              ">
+              {{ data.text }}
+            </span>
+                    </div>
+
                     <div *dxTemplate="let data of 'actionCellTemplate'" class="d-flex gap-2 justify-content-center">
-                        <button class="btn btn-outline-primary btn-sm" (click)="goToDetail(data.data.id)" title="{{ 'GENERAL.DETAIL' | translate }}">
+                        <button class="btn btn-outline-primary btn-sm" (click)="goToDetail(data.data.id)" [title]="'GENERAL.DETAIL' | translate">
                             <i class="fas fa-info-circle"></i>
                         </button>
                     </div>
@@ -89,6 +101,5 @@
                 </dx-data-grid>
             </div>
         </div>
-
     </div>
 </div>

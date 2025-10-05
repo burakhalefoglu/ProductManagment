@@ -26,7 +26,6 @@ import {LocalStorageService} from '../../../core/services/local-storage.service'
 })
 export class LoginComponent implements OnInit {
 
-  username = '';
   loginUser: LoginUser = new LoginUser();
   langugelookUp!: LookUp[];
 
@@ -38,25 +37,14 @@ export class LoginComponent implements OnInit {
     private httpClient: HttpClient) { }
 
   ngOnInit() {
-
-    this.username = this.auth.userName ?? '';
     this.httpClient.get<LookUp[]>(environment.getApiUrl + '/languages/codes').subscribe(data => {
       this.langugelookUp = data;
     })
 
   }
 
-  getUserName() {
-    return this.username;
-  }
-
   login() {
     this.auth.login(this.loginUser);
-  }
-
-  logOut() {
-      this.storageService.removeToken();
-      this.storageService.removeItem('lang');
   }
 
   changeLang(lang: string | undefined) {

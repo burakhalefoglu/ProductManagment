@@ -1,7 +1,7 @@
 services:
-  api_isikmedia_blue_dev:
-    hostname: api_isikmedia_blue_dev
-    container_name: api_isikmedia_blue_dev
+  api_product_management_blue_dev:
+    hostname: api_product_management_blue_dev
+    container_name: api_product_management_blue_dev
     build:
       context: ./
       dockerfile: Dockerfile
@@ -31,11 +31,11 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  portal_isikmedia_blue_dev:
-    hostname: portal_isikmedia_blue_dev
-    container_name: portal_isikmedia_blue_dev
+  product_management_blue_dev:
+    hostname: product_management_blue_dev
+    container_name: product_management_blue_dev
     build:
-      context: ./UiPreparation/FlutterUi/flutter_devarchitecture
+      context: ./UiPreparation/UI # Path to the build folder
       dockerfile: Dockerfile
     restart: unless-stopped
     expose:
@@ -46,7 +46,7 @@ services:
       - log-net
       - traefik-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/#/healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -61,7 +61,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
 
 networks:
   log-net:

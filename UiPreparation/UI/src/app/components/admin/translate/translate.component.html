@@ -1,145 +1,162 @@
 ﻿<div class="main-content">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-danger">
-                        <h4 class="card-title text-white">{{'TranslateList'|translate}}</h4>
-                        <a *ngIf="checkClaim('CreateTranslateCommand')" class="float-end" data-bs-toggle="modal"
-                           data-bs-target="#translate"> <i style="color:white"  title="{{'Add'| translate}}"  class="far fa-plus-square fa-2x"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
+        <div class="card">
+            <div class="card-header bg-danger d-flex align-items-center justify-content-between">
+                <h4 class="card-title text-white mb-0">{{ 'TranslateList' | translate }}</h4>
 
-                            <div class="row mb-3">
-                                <div class="col-md-4 ms-auto"> <div class="form-floating">
-                                    <input type="text" class="form-control" id="translateFilterInput" (keyup)="applyFilter($event)" placeholder="{{'Filter' |translate}}" #input>
-                                    <label for="translateFilterInput">{{"Filter" |translate}}</label>
-                                </div>
-                                </div>
-                            </div>
+                <dx-button
+                        *ngIf="checkClaim('CreateTranslateCommand')"
+                        type="default"
+                        stylingMode="contained"
+                        icon="plus"
+                        [text]="'Add' | translate"
+                        (onClick)="openCreate()">
+                </dx-button>
+            </div>
 
-                            <table class="table table-hover table-striped">
-                                <thead>
-                                <tr>
-                                    <th scope="col" (click)="sortData('id')">{{'Id'|translate}}</th>
-                                    <th scope="col" (click)="sortData('language')">{{'LangCode' |translate}}</th>
-                                    <th scope="col" (click)="sortData('code')">{{'Code'|translate}}</th>
-                                    <th scope="col" (click)="sortData('value')">{{'Value'|translate}}</th>
-                                    <th scope="col"></th>
-                                    <th scope="col"></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr *ngFor="let element of filteredData | slice: (paginator.pageIndex * paginator.pageSize) : ((paginator.pageIndex + 1) * paginator.pageSize)">
-                                    <td>{{element.id}}</td>
-                                    <td>{{element.code}}</td>
-                                    <td>{{element.value}}</td>
+            <div class="card-body">
+                <dx-data-grid
+                        [dataSource]="translateList"
+                        keyExpr="id"
+                        [columnAutoWidth]="true"
+                        [rowAlternationEnabled]="true"
+                        [showBorders]="true"
+                        [hoverStateEnabled]="true"
+                        [allowColumnResizing]="true"
+                        [remoteOperations]="false">
 
-                                    <td style="width: 25px;">
-                                        <a *ngIf="checkClaim('UpdateTranslateCommand')" data-bs-toggle="modal" data-bs-target="#translate"
-                                           (click)="getTranslateById(element.id)">
-                                            <i title="{{'Update' | translate}}" style="color:#ff5722;" class="far fa-edit"></i></a>
-                                    </td>
+                    <!-- Arama / Filtre -->
+                    <dxo-search-panel [visible]="true" [placeholder]="'Filter' | translate"></dxo-search-panel>
+                    <dxo-filter-row [visible]="true"></dxo-filter-row>
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
 
-                                    <td style="width: 25px;">
-                                        <a *ngIf="checkClaim('DeleteTranslateCommand')"
-                                           (confirm)="deleteTranslate(element.id)" [swal]="deleteSwal"><i title="{{'Delete' | translate}}" style="color:#D9534E;" class="fas fa-trash-alt"></i></a>
-                                    </td>
-                                </tr>
+                    <!-- Sayfalama -->
+                    <dxo-paging [pageSize]="10"></dxo-paging>
+                    <dxo-pager
+                            [showInfo]="true"
+                            [showNavigationButtons]="true"
+                            [allowedPageSizes]="[10,25,50,100]"
+                            [showPageSizeSelector]="true">
+                    </dxo-pager>
 
-                                <tr *ngIf="(filteredData | slice: (paginator.pageIndex * paginator.pageSize) : ((paginator.pageIndex + 1) * paginator.pageSize)).length === 0">
-                                    <td colspan="6" class="text-center">{{'NoRecordsFound' |translate}} "{{input.value}}"</td>
-                                </tr>
-                                </tbody>
-                            </table>
+                    <!-- Sütunlar -->
+                    <dxi-column dataField="id" dataType="number" [caption]="'Id' | translate" [sortOrder]="'asc'"></dxi-column>
 
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-end">
-                                    <li class="page-item" [class.disabled]="paginator.pageIndex === 0">
-                                        <a class="page-link" (click)="onPageChange({pageIndex: paginator.pageIndex - 1, pageSize: paginator.pageSize})" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                    <li class="page-item" *ngFor="let page of getPages()" [class.active]="page === paginator.pageIndex + 1">
-                                        <a class="page-link" (click)="onPageChange({pageIndex: page - 1, pageSize: paginator.pageSize})">{{page}}</a>
-                                    </li>
-                                    <li class="page-item" [class.disabled]="paginator.pageIndex === getTotalPages() - 1 || getTotalPages() === 0">
-                                        <a class="page-link" (click)="onPageChange({pageIndex: paginator.pageIndex + 1, pageSize: paginator.pageSize})" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <div class="text-end text-muted small">
-                                    {{paginator.pageIndex * paginator.pageSize + 1}} - {{ (paginator.pageIndex + 1) * paginator.pageSize > paginator.length ? paginator.length : (paginator.pageIndex + 1) * paginator.pageSize }} / {{paginator.length}}
-                                </div>
-                            </nav>
+                    <!-- LangCode (langId lookup) -->
+                    <dxi-column dataField="langId" [caption]="'LangCode' | translate">
+                        <dxo-lookup
+                                [dataSource]="langugelookUp"
+                                valueExpr="id"
+                                displayExpr="label">
+                        </dxo-lookup>
+                    </dxi-column>
 
-                        </div>
-                    </div>
-                </div>
+                    <dxi-column dataField="code"  dataType="string" [caption]="'Code'  | translate"></dxi-column>
+                    <dxi-column dataField="value" dataType="string" [caption]="'Value' | translate" [width]="450"></dxi-column>
+
+                    <!-- Actions -->
+                    <dxi-column type="buttons" [caption]="'Actions' | translate" [width]="150">
+                        <dx-button
+                                icon="edit"
+                                hint="{{ 'Update' | translate }}"
+                                [visible]="checkClaim('UpdateTranslateCommand')"
+                                (onClick)="openEdit($event)">
+                        </dx-button>
+
+                        <dx-button
+                                icon="trash"
+                                hint="{{ 'Delete' | translate }}"
+                                [visible]="checkClaim('DeleteTranslateCommand')"
+                                (onClick)="askDelete($event)">
+                        </dx-button>
+                    </dxi-column>
+                </dx-data-grid>
+
+                <dx-load-indicator *ngIf="isLoading"></dx-load-indicator>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Create / Update Popup -->
+<dx-popup
+        [visible]="formPopupVisible"
+        (onHiding)="formPopupVisible=false"
+        [showCloseButton]="true"
+        [width]="560"
+        [height]="'auto'"
+        [title]="'TranslateForm' | translate">
+    <div *dxTemplate="let d of 'content'">
+        <form *ngIf="translateAddForm" [formGroup]="translateAddForm" (ngSubmit)="save()">
+            <dx-form [formData]="translateAddForm.value" [colCount]="1">
 
+                <!-- Language -->
+                <dxi-item dataField="langId" [label]="{ text: ('LangCode' | translate) }">
+                    <dx-select-box
+                            formControlName="langId"
+                            [items]="langugelookUp"
+                            valueExpr="id"
+                            displayExpr="label"
+                            [searchEnabled]="true"
+                            [placeholder]="'LangCode' | translate">
+                    </dx-select-box>
+                    <dx-validator>
+                        <dxi-validation-rule type="required" [message]="'Required' | translate"></dxi-validation-rule>
+                    </dx-validator>
+                </dxi-item>
 
-<div class="modal fade" id="translate" tabindex="-1" aria-labelledby="translateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-body text-center">
-                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"
-                        (click)="clearFormGroup(translateAddForm)">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="mt-3">
-                    {{'TranslateForm'|translate}}
-                </h4>
-                <div class="separator mb-4"></div>
-                <form *ngIf="translateAddForm" [formGroup]="translateAddForm" (ngSubmit)="save()">
+                <!-- Code -->
+                <dxi-item dataField="code" [label]="{ text: ('Code' | translate) }">
+                    <dx-validator>
+                        <dxi-validation-rule type="required" [message]="'Required' | translate"></dxi-validation-rule>
+                    </dx-validator>
+                </dxi-item>
 
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <select class="form-select" name="langId" formControlName="langId">
-                                <option *ngFor="let item of langugelookUp" [ngValue]="item.id"> {{item.label}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="code" placeholder="{{'Code'|translate}}"
-                                       formControlName="code" />
-                                <label for="code">{{'Code'|translate}}</label>
-                                <div class="alert alert-danger p-1 mt-1"
-                                     *ngIf="translateAddForm.get('code')!.hasError('required') && translateAddForm.get('code')!.touched">
-                                    {{'Required'| translate}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="value" placeholder="{{'Value'|translate}}"
-                                       formControlName="value" />
-                                <label for="value">{{'Value'|translate}}</label>
-                                <div class="alert alert-danger p-1 mt-1"
-                                     *ngIf="translateAddForm.get('value')!.hasError('required') && translateAddForm.get('value')!.touched">
-                                    {{'Required'| translate}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-danger float-end">{{'Save' |translate}}</button>
-                    <div class="clearfix"></div>
-                </form>
+                <!-- Value -->
+                <dxi-item dataField="value" [label]="{ text: ('Value' | translate) }">
+                    <dx-validator>
+                        <dxi-validation-rule type="required" [message]="'Required' | translate"></dxi-validation-rule>
+                    </dx-validator>
+                </dxi-item>
+
+            </dx-form>
+
+            <div class="d-flex justify-content-end mt-3">
+                <dx-button
+                        type="default"
+                        stylingMode="contained"
+                        [text]="'Save' | translate"
+                        [useSubmitBehavior]="true">
+                </dx-button>
             </div>
+        </form>
+    </div>
+</dx-popup>
+
+<!-- Delete Confirm Popup -->
+<dx-popup
+        [visible]="deleteConfirmVisible"
+        (onHiding)="deleteConfirmVisible=false"
+        [showCloseButton]="true"
+        [width]="420"
+        [height]="'auto'"
+        [title]="'Delete' | translate">
+    <div *dxTemplate="let d of 'content'">
+        <p class="mb-4">{{ 'DeleteConfirm' | translate }}</p>
+        <div class="d-flex justify-content-end gap-2">
+            <dx-button
+                    stylingMode="outlined"
+                    type="normal"
+                    [text]="'Cancel' | translate"
+                    (onClick)="deleteConfirmVisible=false">
+            </dx-button>
+
+            <dx-button
+                    stylingMode="contained"
+                    type="danger"
+                    [text]="'OK' | translate"
+                    (onClick)="pendingDeleteId && deleteTranslate(pendingDeleteId)">
+            </dx-button>
         </div>
     </div>
-</div>
-
-<swal #deleteSwal title="{{'DeleteConfirm' | translate}}" icon="error" [showCancelButton]="true"
-      [confirmButtonText]="'OK'" [cancelButtonText]="'Cancel'">
-</swal>
+</dx-popup>

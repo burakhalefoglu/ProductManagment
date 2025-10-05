@@ -6,6 +6,7 @@ import {Router, RouterLink} from '@angular/router';
 import {HttpEntityRepositoryService} from '../../../core/services/http-entity-repository.service';
 import {TitleService} from '../../../core/services/title.service';
 import {Product} from '../models/product';
+import {AlertifyService} from '../../../core/services/Alertify.service';
 
 @Component({
     standalone: true,
@@ -26,7 +27,8 @@ export class ProductAddComponent implements OnInit {
     constructor(private fb: FormBuilder,
                 private router: Router,
                 private productRepo: HttpEntityRepositoryService<string>,
-                private titleService: TitleService) {}
+                private titleService: TitleService,
+                private alertifyService: AlertifyService) {}
 
     ngOnInit(): void {
         this.initializeForm();
@@ -85,7 +87,7 @@ export class ProductAddComponent implements OnInit {
         this.productRepo.add('/Products', finalProduct)
             .subscribe({
                 next: (res: string) => {
-                    alert('Ürün başarıyla kaydedildi!');
+                    this.alertifyService.success('Ürün başarıyla kaydedildi!')
                     this.router.navigate(['/app/products']);
                 },
                 error: (err: any) => {

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Signal, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Signal} from '@angular/core';
 import {Router, RouterLink, RouterOutlet} from '@angular/router';
 import {TranslatePipe, TranslateService} from '@ngx-translate/core';
 import {CommonModule, NgClass} from '@angular/common';
@@ -43,9 +43,9 @@ export const USERROUTES: RouteInfo[] = [
     ]
 })
 export class PrivateLayoutComponent {
-    userName!: string;
+    public readonly userNameSignal: Signal<string> = this.authService.userNameSignal;
     clickEventSubscription: Subscription;
-    public pageTitle: Signal<string> = signal('PORTAL');
+    public pageTitle = this.titleService.pageTitle;
 
     adminMenuItems!: any[];
     userMenuItems!: any[];
@@ -56,9 +56,6 @@ export class PrivateLayoutComponent {
                 private sharedService: SharedService,
                 private titleService: TitleService) {
         this.clickEventSubscription = this.sharedService.getChangeUserNameClickEvent().subscribe(() => {
-            this.setUserName();
-            this.pageTitle = this.titleService.pageTitle ?? signal('PORTAL');
-
         });
     }
 
@@ -66,8 +63,6 @@ export class PrivateLayoutComponent {
 
         this.adminMenuItems = ADMINROUTES.filter(menuItem => menuItem);
         this.userMenuItems = USERROUTES.filter(menuItem => menuItem);
-        console.log(this.userName);
-        this.userName = this.authService.getUserName();
         const lang = localStorage.getItem('lang') || 'tr-TR'
         this.translateService.use(lang);
     }
@@ -81,9 +76,6 @@ export class PrivateLayoutComponent {
             this.router.navigateByUrl('/public/login');
             this.clickEventSubscription.unsubscribe();
         }
-    }
-    setUserName() {
-        this.userName = this.authService.getUserName();
     }
 
     toggleSidebar() {

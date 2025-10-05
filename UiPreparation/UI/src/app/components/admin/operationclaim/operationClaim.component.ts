@@ -1,14 +1,23 @@
-import {Component, AfterViewInit, OnInit, ChangeDetectionStrategy} from '@angular/core';
-import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { OperationClaim } from './models/operationclaim';
 import { OperationClaimService } from './services/operationclaim.service';
-import {AuthService} from '../../public/login/Services/Auth.service';
-import {CommonModule} from '@angular/common';
-import {TranslateModule} from '@ngx-translate/core';
-import {AlertifyService} from '../../../core/services/Alertify.service';
-import {TitleService} from '../../../core/services/title.service';
+import { AuthService } from '../../public/login/Services/Auth.service';
+import { AlertifyService } from '../../../core/services/Alertify.service';
+import { TitleService } from '../../../core/services/title.service';
 
-declare var jQuery: any;
+// DevExtreme
+import {
+    DxDataGridModule,
+    DxPopupModule,
+    DxButtonModule,
+    DxFormModule,
+    DxValidatorModule,
+    DxLoadIndicatorModule,
+} from 'devextreme-angular';
 
 @Component({
     selector: 'app-operationClaim',
@@ -20,167 +29,116 @@ declare var jQuery: any;
         CommonModule,
         TranslateModule,
         ReactiveFormsModule,
-    ]
+
+        DxDataGridModule,
+        DxPopupModule,
+        DxButtonModule,
+        DxFormModule,
+        DxValidatorModule,
+        DxLoadIndicatorModule,
+    ],
 })
 export class OperationClaimComponent implements AfterViewInit, OnInit {
 
     operationClaimList: OperationClaim[] = [];
-    filteredData: OperationClaim[] = [];
+    isLoading = false;
 
-    paginator = {
-        pageIndex: 0,
-        pageSize: 10,
-        pageSizeOptions: [10, 25, 50, 100],
-        length: 0,
-    };
-    currentSortColumn = 'id';
-    currentSortDirection: 'asc' | 'desc' = 'asc';
-
-
-    displayedColumns: string[] = ['id', 'name', 'alias', 'description', 'update'];
-
+    // popup & form
+    formPopupVisible = false;
+    operationClaimAddForm!: FormGroup;
     operationClaim: OperationClaim = new OperationClaim();
 
-    operationClaimAddForm!: FormGroup;
-    constructor(private operationClaimService: OperationClaimService,
-                private alertifyService: AlertifyService,
-                private formBuilder: FormBuilder,
-                private authService: AuthService,
-                private titleService: TitleService,) { }
+    constructor(
+        private operationClaimService: OperationClaimService,
+        private alertifyService: AlertifyService,
+        private formBuilder: FormBuilder,
+        private authService: AuthService,
+        private titleService: TitleService,
+        private cdr: ChangeDetectorRef
+    ) {}
+
+    ngOnInit(): void {
+        this.createOperationClaimAddForm();
+        this.titleService.setPageTitle('Operation Claim');
+    }
 
     ngAfterViewInit(): void {
         this.getOperationClaimList();
     }
 
-    ngOnInit() {
-        this.createOperationClaimAddForm();
-        this.titleService.setPageTitle('Operation Claim');
-    }
-
-    getOperationClaimList() {
-        this.operationClaimService.getOperationClaimList().subscribe(data => {
-            this.operationClaimList = data;
-            this.filteredData = data;
-            this.paginator.length = data.length;
-            this.sortData(this.currentSortColumn, true);
+    // === Data ===
+    getOperationClaimList(): void {
+        this.isLoading = true;
+        this.operationClaimService.getOperationClaimList().subscribe({
+            next: (data) => {
+                this.operationClaimList = Array.isArray(data) ? [...data] : [];
+                this.isLoading = false;
+                this.cdr.markForCheck();
+            },
+            error: () => {
+                this.isLoading = false;
+                this.cdr.markForCheck();
+            },
         });
     }
 
-    save() {
-        if (this.operationClaimAddForm.valid) {
-            this.operationClaim = Object.assign({}, this.operationClaimAddForm.value)
-            this.updateOperationClaim();
-        }
+    // === CRUD (sende sadece update var) ===
+    openEdit(event: any): void {
+        var operationClaimId = event.row?.data.id;
+        if (operationClaimId == null) return;
+        this.clearFormGroup(this.operationClaimAddForm);
+        this.operationClaimService.getOperationClaim(operationClaimId).subscribe((data) => {
+            this.operationClaim = data;
+            this.operationClaimAddForm.patchValue(data);
+            this.formPopupVisible = true;
+            this.cdr.markForCheck();
+        });
     }
 
-    updateOperationClaim() {
-        this.operationClaimService.updateOperationClaim(this.operationClaim).subscribe(data => {
+    save(): void {
+        if (!this.operationClaimAddForm.valid) return;
+        this.operationClaim = { ...this.operationClaim, ...this.operationClaimAddForm.value };
+        this.updateOperationClaim();
+    }
 
+    updateOperationClaim(): void {
+        this.operationClaimService.updateOperationClaim(this.operationClaim).subscribe((data) => {
             const index = this.operationClaimList.findIndex(x => x.id === this.operationClaim.id);
             if (index !== -1) {
-                this.operationClaimList[index] = this.operationClaim;
-                this.filteredData = [...this.operationClaimList];
-                this.sortData(this.currentSortColumn, true);
+                this.operationClaimList[index] = { ...this.operationClaim };
+                this.operationClaimList = [...this.operationClaimList]; // OnPush
             }
-
-            this.operationClaim = new OperationClaim();
-            jQuery('#operationclaim').modal('hide');
+            this.formPopupVisible = false;
             this.alertifyService.success(data);
             this.clearFormGroup(this.operationClaimAddForm);
-        })
+            this.operationClaim = new OperationClaim();
+            this.cdr.markForCheck();
+        });
     }
 
-    createOperationClaimAddForm() {
+    // === Helpers ===
+    createOperationClaimAddForm(): void {
         this.operationClaimAddForm = this.formBuilder.group({
             id: [0],
             name: [''],
-            alias: [''],
-            description: ['']
-        })
+            alias: ['', Validators.required],
+            description: [''],
+        });
     }
 
-    getOperationClaimById(operationClaimId: number) {
-        this.clearFormGroup(this.operationClaimAddForm);
-        this.operationClaimService.getOperationClaim(operationClaimId).subscribe(data => {
-            this.operationClaimAddForm.patchValue(data);
-            this.operationClaim = data;
-        })
-    }
-
-    clearFormGroup(group: FormGroup) {
+    clearFormGroup(group: FormGroup): void {
         group.markAsUntouched();
         group.reset();
-
         Object.keys(group.controls).forEach(key => {
             const control = group.get(key);
             if (control) {
                 control.setErrors(null);
-                if (key === 'id') {
-                    control.setValue(0);
-                }
+                if (key === 'id') control.setValue(0);
             }
         });
     }
 
     checkClaim(claim: string): boolean {
-        return this.authService.claimGuard(claim)
-    }
-
-    sortData(sortColumn: string, isInitialSort = false): void {
-        if (this.currentSortColumn === sortColumn && !isInitialSort) {
-            this.currentSortDirection = this.currentSortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.currentSortDirection = 'asc';
-        }
-
-        this.currentSortColumn = sortColumn;
-
-        this.filteredData.sort((a, b) => {
-            const aValue = (a as any)[sortColumn];
-            const bValue = (b as any)[sortColumn];
-
-            let comparison = 0;
-            if (aValue > bValue) {
-                comparison = 1;
-            } else if (aValue < bValue) {
-                comparison = -1;
-            }
-
-            return this.currentSortDirection === 'asc' ? comparison : comparison * -1;
-        });
-    }
-
-    applyFilter(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-
-        this.filteredData = this.operationClaimList.filter(claim => {
-            const nameMatch = claim.name ? claim.name.toLowerCase().includes(filterValue) : false;
-            const aliasMatch = claim.alias ? claim.alias.toLowerCase().includes(filterValue) : false;
-            const descriptionMatch = claim.description ? claim.description.toLowerCase().includes(filterValue) : false;
-
-            const idMatch = claim.id !== undefined && claim.id !== null
-                ? claim.id.toString().includes(filterValue)
-                : false;
-
-            return nameMatch || aliasMatch || descriptionMatch || idMatch;
-        });
-
-        this.paginator.length = this.filteredData.length;
-        this.paginator.pageIndex = 0;
-        this.sortData(this.currentSortColumn, true);
-    }
-
-    onPageChange(event: { pageIndex: number, pageSize: number }) {
-        this.paginator.pageIndex = event.pageIndex;
-        this.paginator.pageSize = event.pageSize;
-    }
-
-    getTotalPages(): number {
-        return Math.ceil(this.paginator.length / this.paginator.pageSize);
-    }
-
-    getPages(): number[] {
-        const total = this.getTotalPages();
-        return Array.from({ length: total }, (_, i) => i + 1);
+        return this.authService.claimGuard(claim);
     }
 }

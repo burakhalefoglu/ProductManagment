@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Business.Handlers.Authorizations.Commands;
 using Business.Handlers.Authorizations.Queries;
 using Business.Handlers.Users.Commands;
 using Core.Utilities.Results;
@@ -36,6 +37,24 @@ namespace WebAPI.Controllers
             var result = await Mediator.Send(loginModel);
             return result.Success ? Ok(result) : Unauthorized(result.Message);
         }
+
+        /// <summary>
+        /// Make it User Regiser operations
+        /// </summary>
+        /// <param name="registerModel"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        [Consumes("application/json")]
+        [Produces("application/json", "text/plain")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IDataResult<AccessToken>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserCommand registerModel)
+        {
+            var result = await Mediator.Send(registerModel);
+            return result.Success ? Ok(result) : Unauthorized(result.Message);
+        }
+
 
         [AllowAnonymous]
         [Consumes("application/json")]

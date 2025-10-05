@@ -4,8 +4,8 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false,
-  getApiUrl: `https://localhost:5001/api/v1`,
+  production: true,
+  getApiUrl: '__API_URL__',
   getDropDownSetting: {
     singleSelection: false,
     idField: 'id',
@@ -15,9 +15,4 @@ export const environment = {
     itemsShowLimit: 3,
     allowSearchFilter: true
   },
-  getDatatableSettings:  {
-    pagingType: 'full_numbers',
-    pageLength: 2
-  }
-
 };

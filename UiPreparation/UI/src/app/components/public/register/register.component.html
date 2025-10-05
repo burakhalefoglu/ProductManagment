@@ -8,8 +8,8 @@
 
                     <!-- Branding -->
                     <div class="text-center mb-4">
-                        <h4>{{'Register' | translate}}</h4>
-                        <p class="text-muted mb-0">PRODUCT MANAGEMENT</p>
+                        <h4>{{ 'Register' | translate }}</h4>
+                        <p class="text-muted mb-0">{{ 'ProductManagement' | translate }}</p>
                     </div>
 
                     <!-- Register Form -->
@@ -17,92 +17,92 @@
 
                         <!-- Username -->
                         <div class="mb-3">
-                            <label for="signup-username" class="form-label">{{'Username' | translate}}</label>
+                            <label for="signup-username" class="form-label">{{ 'Username' | translate }}</label>
                             <input
                                     type="text"
                                     class="form-control"
                                     id="signup-username"
-                                    placeholder="{{'Username' | translate}}"
+                                    [placeholder]="'Username' | translate"
                                     required
                                     name="username"
                                     [(ngModel)]="registerUser.fullName">
                             <div class="invalid-feedback">
-                                Lütfen kullanıcı adınızı girin.
+                                {{ 'PleaseEnterUsername' | translate }}
                             </div>
                         </div>
 
                         <!-- Email -->
                         <div class="mb-3">
-                            <label for="signup-email" class="form-label">{{'Email' | translate}}</label>
+                            <label for="signup-email" class="form-label">{{ 'Email' | translate }}</label>
                             <input
                                     type="email"
                                     class="form-control"
                                     id="signup-email"
-                                    placeholder="{{'Email' | translate}}"
+                                    [placeholder]="'Email' | translate"
                                     required
                                     name="email"
                                     [(ngModel)]="registerUser.email">
                             <div class="invalid-feedback">
-                                Lütfen geçerli bir email girin.
+                                {{ 'PleaseEnterValidEmail' | translate }}
                             </div>
                         </div>
 
                         <!-- Password -->
                         <div class="mb-3">
-                            <label for="signup-password" class="form-label">{{'Password' | translate}}</label>
+                            <label for="signup-password" class="form-label">{{ 'Password' | translate }}</label>
                             <input
                                     type="password"
                                     class="form-control"
                                     id="signup-password"
-                                    placeholder="{{'Password' | translate}}"
+                                    [placeholder]="'Password' | translate"
                                     required
                                     name="password"
                                     [(ngModel)]="registerUser.password">
                             <div class="invalid-feedback">
-                                Lütfen şifrenizi girin.
+                                {{ 'PleaseEnterPassword' | translate }}
                             </div>
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mb-3">
-                            <label for="signup-confirm-password" class="form-label">{{'Confirm Password' | translate}}</label>
+                            <label for="signup-confirm-password" class="form-label">{{ 'ConfirmPassword' | translate }}</label>
                             <input
                                     type="password"
                                     class="form-control"
                                     id="signup-confirm-password"
-                                    placeholder="{{'Confirm Password' | translate}}"
+                                    [placeholder]="'ConfirmPassword' | translate"
                                     required
                                     name="confirmPassword"
                                     [(ngModel)]="registerUser.confirmPassword">
                             <div class="invalid-feedback">
-                                Şifreler eşleşmiyor veya boş.
+                                {{ 'PasswordsDoNotMatchOrEmpty' | translate }}
                             </div>
                         </div>
 
                         <!-- Language Select -->
                         <div class="mb-4">
-                            <label for="lang-select" class="form-label">Dil Seçiniz</label>
+                            <label for="lang-select" class="form-label">{{ 'SelectLanguage' | translate }}</label>
                             <select
                                     id="lang-select"
                                     class="form-select"
                                     name="lang"
                                     [(ngModel)]="registerUser.lang"
                                     (change)="changeLang(registerUser.lang)">
-                                <option value="" disabled selected>Seçiniz</option>
+                                <option value="" disabled selected>{{ 'PleaseSelect' | translate }}</option>
                                 <option *ngFor="let item of langugelookUp" [value]="item.id">
-                                    {{item.label}}
+                                    {{ item.label }}
                                 </option>
                             </select>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary">{{'Register' | translate}}</button>
+                            <button type="submit" class="btn btn-primary">{{ 'Register' | translate }}</button>
                         </div>
 
                         <!-- Login Link -->
                         <div class="text-center">
-                            <a [routerLink]="['/public/login']">{{'Already have an account? Login' | translate}}</a>
+                            <a [routerLink]="['/public/login']">{{ 'AlreadyHaveAnAccountLogin' | translate }}</a>
                         </div>
 
                     </form>

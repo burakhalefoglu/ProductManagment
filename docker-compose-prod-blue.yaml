@@ -1,7 +1,7 @@
 services:
-  api_isikmedia_blue:
-    hostname: api_isikmedia_blue
-    container_name: api_isikmedia_blue
+  api_product_management_blue:
+    hostname: api_product_management_blue
+    container_name: api_product_management_blue
     build:
       context: ./
       dockerfile: Dockerfile
@@ -31,11 +31,11 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  portal_isikmedia_blue:
-    hostname: portal_isikmedia_blue
-    container_name: portal_isikmedia_blue
+  product_management_blue:
+    hostname: product_management_blue
+    container_name: product_management_blue
     build:
-      context: ./UiPreparation/FlutterUi/flutter_devarchitecture
+      context: ./UiPreparation/UI # Path to the build folder
       dockerfile: Dockerfile
     restart: unless-stopped
     expose:

@@ -1,35 +1,98 @@
-<div class="p-4">
-    <h1 class="mb-4">{{ 'PRODUCT.LIST.TITLE' | translate }}</h1>
+<div class="container-fluid p-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex align-items-center justify-content-between bg-white">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-cubes text-primary fs-5"></i>
+                <h5 class="mb-0 text-primary fw-bold">{{ 'PRODUCT.LIST.TITLE' | translate }}</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-secondary btn-sm" (click)="fetchProducts()" title="Reload">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="btn btn-success btn-sm" (click)="openCreatePage()">
+                    <i class="fas fa-plus-circle me-1"></i> {{ 'GENERAL.ADD_NEW' | translate }}
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-3">
+            <div class="row mb-2">
+                <div class="col-12 col-md-6">
+                    <!-- small helper search if you want outside grid (optional). Grid already has search panel inside -->
+                    <input class="form-control form-control-sm" placeholder="{{ 'GENERAL.SEARCH_PLACEHOLDER' | translate }}" (input)="dataGrid?.instance?.option('searchPanel', { text: $any($event.target).value })" />
+                </div>
+            </div>
 
-    <dx-data-grid
-            [dataSource]="products()"         [showBorders]="true"
-            [columnAutoWidth]="true"
-            [hoverStateEnabled]="true"
-    >
+            <div class="table-responsive">
+                <dx-data-grid
+                    #grid
+                    [dataSource]="dxDataSource"
+                    [showBorders]="true"
+                    [columnAutoWidth]="true"
+                    [hoverStateEnabled]="true"
+                    [rowAlternationEnabled]="true"
+                    [height]="600"
+                    [noDataText]="'GENERAL.NO_DATA_AVAILABLE' | translate">
 
-        <dxo-paging [pageSize]="10"></dxo-paging>
-        <dxo-pager
-                [showPageSizeSelector]="true"
-                [allowedPageSizes]="[10, 20, 50]"
-                [showInfo]="true"
-        ></dxo-pager>
-        <dxo-filter-row [visible]="true"></dxo-filter-row>
-        <dxo-header-filter [visible]="true"></dxo-header-filter>
-        <dxo-search-panel [visible]="true" [width]="240"></dxo-search-panel>
+                    <!-- Search panel (inside grid, correct place) -->
+                    <dxo-search-panel [visible]="true" [width]="300" [placeholder]="'GENERAL.SEARCH_PLACEHOLDER' | translate"></dxo-search-panel>
 
-        <dxi-column dataField="id" caption="ID" [width]="70"></dxi-column>
-        <dxi-column dataField="name" caption="{{ 'PRODUCT.NAME' | translate }}"></dxi-column>
-        <dxi-column dataField="unitPrice" caption="{{ 'PRODUCT.PRICE' | translate }}" dataType="number" format="currency"></dxi-column>
-        <dxi-column dataField="unitsInStock" caption="{{ 'PRODUCT.STOCK' | translate }}" dataType="number"></dxi-column>
+                    <!-- Toolbar controls that must be inside grid -->
+                    <dxo-export [enabled]="true" fileName="Products" [allowExportSelectedData]="true"></dxo-export>
+                    <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+                    <dxo-group-panel [visible]="true"></dxo-group-panel>
 
-        <dxi-column caption="{{ 'GENERAL.ACTIONS' | translate }}" [width]="150" cellTemplate="actionCellTemplate"
-                    [allowFiltering]="false" [allowSorting]="false"></dxi-column>
+                    <!-- Paging -->
+                    <dxo-paging [pageSize]="10"></dxo-paging>
+                    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10,20,50]" [showInfo]="true"></dxo-pager>
 
-        <div *dxTemplate="let data of 'actionCellTemplate'">
-            <button class="btn btn-sm btn-info me-2" (click)="goToDetail(data.data.id)">
-                {{ 'GENERAL.DETAIL' | translate }}
-            </button>
+                    <!-- Filtering -->
+                    <dxo-filter-row [visible]="true"></dxo-filter-row>
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
+
+                    <!-- Selection -->
+                    <dxo-selection mode="single"></dxo-selection>
+
+                    <!-- Columns -->
+                    <dxi-column dataField="id" caption="ID" [width]="80" alignment="center" [fixed]="true" cellTemplate="idCellTemplate"></dxi-column>
+                    <dxi-column dataField="name" caption="{{ 'PRODUCT.NAME' | translate }}" [minWidth]="200"></dxi-column>
+                    <dxi-column dataField="unitPrice" caption="{{ 'PRODUCT.PRICE' | translate }}" dataType="number" format="#,##0.00 '₺'"></dxi-column>
+                    <dxi-column dataField="unitsInStock" caption="{{ 'PRODUCT.STOCK' | translate }}" dataType="number" alignment="center" cellTemplate="stockCellTemplate"></dxi-column>
+                    <dxi-column caption="{{ 'GENERAL.ACTIONS' | translate }}" [width]="110" cellTemplate="actionCellTemplate" [allowFiltering]="false" [allowSorting]="false" alignment="center"></dxi-column>
+
+                    <!-- Summary: use dxo-summary at grid level -->
+                    <dxo-summary>
+                        <dxi-total-item column="unitPrice" summaryType="sum" displayFormat="Toplam: {0} ₺"></dxi-total-item>
+                    </dxo-summary>
+
+                    <!-- Templates -->
+                    <div *dxTemplate="let data of 'idCellTemplate'">
+                        <span class="badge bg-light text-dark fw-bold">{{ data.text }}</span>
+                    </div>
+
+                    <div *dxTemplate="let data of 'stockCellTemplate'">
+        <span [class]="
+          data.value > 20 ? 'badge bg-success px-2 py-1' :
+          (data.value > 0 ? 'badge bg-warning text-dark px-2 py-1' : 'badge bg-danger px-2 py-1')">
+          {{ data.text }}
+        </span>
+                    </div>
+
+                    <div *dxTemplate="let data of 'actionCellTemplate'" class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-outline-primary btn-sm" (click)="goToDetail(data.data.id)" title="{{ 'GENERAL.DETAIL' | translate }}">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+
+                    <div *dxTemplate="let e of 'noDataText'">
+                        <div class="text-center py-4">
+                            <i class="fas fa-box-open fa-2x text-muted mb-2"></i>
+                            <div>{{ 'GENERAL.NO_DATA_AVAILABLE' | translate }}</div>
+                        </div>
+                    </div>
+
+                </dx-data-grid>
+            </div>
         </div>
 
-    </dx-data-grid>
+    </div>
 </div>

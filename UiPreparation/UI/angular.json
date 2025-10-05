@@ -23,14 +23,11 @@
               "src/favicon.ico"
             ],
             "styles": [
+              "node_modules/devextreme/dist/css/dx.light.css",
               "src/styles.css",
-              "src/assets/css/portal.css",
-              "src/assets/scss/portal.scss",
-              "src/assets/plugins/fontawesome/css/fontawesome.min.css",
-              "src/assets/plugins/bootstrap/css/bootstrap.min.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/font-awesome/css/font-awesome.min.css",
-              "node_modules/alertifyjs/build/css/alertify.min.css", 
+              "node_modules/alertifyjs/build/css/alertify.min.css",
               "node_modules/alertifyjs/build/css/themes/bootstrap.min.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
@@ -50,11 +47,6 @@
 
               "node_modules/bootstrap-select/dist/js/bootstrap-select.min.js",
               "node_modules/bootstrap-select/dist/js/i18n/defaults-tr_TR.js",
-
-              "src/assets/plugins/chart.js/chart.min.js",
-              "src/assets/js/app.js",
-              "src/assets/js/charts-demo.js",
-              "src/assets/js/index-charts.js"
             ],
             "allowedCommonJsDependencies": [
               "jquery",

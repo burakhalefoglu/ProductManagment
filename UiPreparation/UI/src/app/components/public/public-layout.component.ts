@@ -8,11 +8,7 @@ import { RouterOutlet } from '@angular/router';
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'app-public-layout',
     template: `
-    <div class="wrapper">
-      <div class="main-panel">
         <router-outlet></router-outlet>
-      </div>
-    </div>
   `,
     imports: [RouterOutlet]
 })

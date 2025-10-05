@@ -12,11 +12,7 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { AuthInterceptorService } from './core/interceptors/auth-interceptor.service';
 import { HttpEntityRepositoryService } from './core/services/http-entity-repository.service';
 import {TranslationService} from './core/services/Translation.service';
-import {SidebarComponent} from './components/base/sidebar/sidebar.component';
-import {NavbarComponent} from './components/base/navbar/navbar.component';
-import {FooterComponent} from './components/base/footer/footer.component';
 import {LoginGuard} from './guards/login-guard';
-import {ComponentsModule} from './modules/components.module';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -41,7 +37,7 @@ export function tokenGetter() {
                 useClass: TranslationService,
                 deps: [HttpClient]
             }
-        }), SidebarComponent, NavbarComponent, FooterComponent], providers: [
+        })], providers: [
         LoginGuard,
         {
             provide: HTTP_INTERCEPTORS,
@@ -50,7 +46,5 @@ export function tokenGetter() {
         },
         HttpEntityRepositoryService,
         provideHttpClient(withInterceptorsFromDi()),
-        ComponentsModule,
-
     ] })
 export class AppModule { }

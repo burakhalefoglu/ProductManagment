@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import {DashboardComponent} from '../components/admin/dashboard/dashboard.component';
-import {AdminLayoutComponent} from '../components/admin/admin-layout.component';
+import {PrivateLayoutComponent} from '../components/private-layout.component';
 import {LoginGuard} from '../guards/login-guard';
 import {GroupComponent} from '../components/admin/group/group.component';
 import LanguageComponent from '../components/admin/language/language.component';
@@ -13,7 +13,7 @@ import {UserComponent} from '../components/admin/user/user.component';
 export const routes: Routes = [
     {
         path: '',
-        component: AdminLayoutComponent,
+        component: PrivateLayoutComponent,
         children: [
             { path: 'dashboard', component: DashboardComponent, canActivate: [LoginGuard] },
             { path: 'group', component: GroupComponent, canActivate: [LoginGuard] },

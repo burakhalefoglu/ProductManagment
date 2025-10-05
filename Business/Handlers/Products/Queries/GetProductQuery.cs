@@ -32,7 +32,7 @@ namespace Business.Handlers.Products.Queries
             [SecuredOperation(Priority = 1)]
             public async Task<IDataResult<Product>> Handle(GetProductQuery request, CancellationToken cancellationToken)
             {
-                var product = await _productRepository.GetAsync(p => p.Id == request.Id);
+                var product = await _productRepository.GetWithColorAsync(p => p.Id == request.Id);
                 return new SuccessDataResult<Product>(product);
             }
         }

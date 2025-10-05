@@ -12,13 +12,11 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using Business.Handlers.Colors.Commands;
 using Business.Handlers.Products.ValidationRules;
 
 namespace Business.Handlers.Products.Commands
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class CreateProductCommand : IRequest<IResult>
     {
 
@@ -60,6 +58,12 @@ namespace Business.Handlers.Products.Commands
 
                 _productRepository.Add(addedProduct);
                 await _productRepository.SaveChangesAsync();
+                //// add colors
+                //request.Colors.ToList().ForEach(async x =>
+                //{
+                //    await _mediator.Send(
+                //        new CreateColorCommand(){ProductId = addedProduct.Id,ColorName = x.ColorName});
+                //});
                 return new SuccessResult(Messages.Added);
             }
         }

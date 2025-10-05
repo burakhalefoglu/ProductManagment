@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpEntityRepositoryService} from '../../../core/services/http-entity-repository.service';
 import {TitleService} from '../../../core/services/title.service';
+import {Product} from '../models/product';
 
 @Component({
     standalone: true,
@@ -51,7 +52,7 @@ export class ProductUpdateComponent implements OnInit {
             return;
         }
 
-        this.productRepo.get('Products/', this.productId, this.destroyRef)
+        this.productRepo.get('/Products/', this.productId, this.destroyRef)
             .subscribe({
                 next: (product) => {
                     this.fillForm(product);
@@ -106,7 +107,7 @@ export class ProductUpdateComponent implements OnInit {
                this.productForm.value.unitsInStock,
                 rawColors)
 
-            this.productRepo.update('Products', finalProduct)
+            this.productRepo.update('/Products', finalProduct)
                 .subscribe({
                     next: () => {
                         alert(`Ürün ID: ${this.productId} başarıyla güncellendi!`);

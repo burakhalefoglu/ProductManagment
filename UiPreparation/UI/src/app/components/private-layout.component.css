@@ -1,0 +1,72 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* Üst bar her şeyin üstünde kalsın */
+.app-header {
+  z-index: 1054;
+  .badge { font-weight: 500; }
+}
+
+/* Sidebar */
+.app-sidebar {
+  width: 250px;
+  min-width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  background-color: #f8f9fa;
+  border-right: 1px solid rgba(0,0,0,.1);
+  transition: transform .3s ease;
+  z-index: 1055;
+
+  /* Desktop: hep açık */
+  @media (min-width: 1200px) {
+    transform: translateX(0);
+  }
+
+  /* Mobil/Tablet: kapalı başlar, .show ile açılır */
+  @media (max-width: 1199.98px) {
+    transform: translateX(-100%);
+    &.show { transform: translateX(0); }
+  }
+
+  .sidebar-brand {
+    padding: .9rem;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    display: flex; align-items: center; justify-content: space-between;
+    font-weight: 600;
+  }
+
+  .nav-link {
+    color: #333;
+    padding: .75rem 1rem;
+    border-radius: 0;
+    &:hover { background-color: rgba(0,0,0,.05); }
+  }
+
+  .nav .collapse .nav-link { padding-left: 2rem; }
+
+  .sidebar-footer {
+    border-top: 1px solid rgba(0,0,0,.1);
+      padding-bottom: 3.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+  }
+}
+
+/* İçerik alanı — desktop’ta sidebar kadar offset ver */
+.app-main {
+  padding: 1rem;
+  margin-left: 0;
+
+  @media (min-width: 1200px) {
+    margin-left: 250px; /* sidebar genişliği */
+  }
+}
+
+/* Yüzen hamburger (sadece mobil/tablet) */
+.sidebar-fab {
+  position: fixed;
+  bottom: 1rem; left: 1rem;
+  z-index: 1060;
+  box-shadow: 0 .25rem .75rem rgba(0,0,0,.15);
+}

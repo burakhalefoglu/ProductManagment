@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {HttpEntityRepositoryService} from '../../../core/services/http-entity-repository.service';
 import {TitleService} from '../../../core/services/title.service';
+import {Product} from '../models/product';
 
 @Component({
     standalone: true,
@@ -39,7 +40,7 @@ export class ProductDetailComponent implements OnInit {
             return;
         }
 
-        this.productRepo.get('Products/', this.productId, this.destroyRef)
+        this.productRepo.get('/Products/', this.productId, this.destroyRef)
             .subscribe({
                 next: (product) => {
                     this._product.set(product);

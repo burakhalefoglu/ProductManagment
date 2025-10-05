@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import {Router, RouterLink} from '@angular/router';
 import {HttpEntityRepositoryService} from '../../../core/services/http-entity-repository.service';
 import {TitleService} from '../../../core/services/title.service';
+import {Product} from '../models/product';
 
 @Component({
     standalone: true,
@@ -73,7 +74,7 @@ export class ProductAddComponent implements OnInit {
                  rawColors
         );
 
-        this.productRepo.add('Products', finalProduct)
+        this.productRepo.add('/Products', finalProduct)
             .subscribe({
                 next: () => {
                     alert('Ürün başarıyla kaydedildi!');

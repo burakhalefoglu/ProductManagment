@@ -23,7 +23,6 @@ namespace Core.CrossCuttingConcerns.Caching.Redis
             {
                 configurationOptions.Password = cacheConfig.Password;
             }
-
             configurationOptions.DefaultDatabase = cacheConfig.Database;
             _redis = ConnectionMultiplexer.Connect(configurationOptions);
             _cache = _redis.GetDatabase(cacheConfig.Database);

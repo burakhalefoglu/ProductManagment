@@ -16,8 +16,6 @@ export class HttpEntityRepositoryService<T> {
 
     getAll(_url: string, destroyRef?: DestroyRef): Observable<T[]> {
         const request$ = this.httpClient.get<T[]>(environment.getApiUrl + _url);
-
-        // Eğer DestroyRef varsa otomatik iptali etkinleştir
         return destroyRef
             ? request$.pipe(takeUntilDestroyed(destroyRef))
             : request$;
@@ -25,15 +23,16 @@ export class HttpEntityRepositoryService<T> {
 
     get(_url: string, id?: number, destroyRef?: DestroyRef): Observable<T> {
         const idParam = (id !== undefined && id !== null) ? +id : '';
-        const request$ = this.httpClient.get<T>(environment.getApiUrl + _url + idParam);
-
+        const request$ = this.httpClient.get<T>(environment.getApiUrl + _url + idParam
+    );
         return destroyRef
             ? request$.pipe(takeUntilDestroyed(destroyRef))
             : request$;
     }
 
     add(_url: string, _content: any, destroyRef?: DestroyRef): Observable<T> {
-        const request$ = this.httpClient.post<T>(environment.getApiUrl + _url, _content);
+        const request$ = this.httpClient.post<T>(environment.getApiUrl + _url, _content, { responseType: 'text' as 'json' }
+        );
 
         return destroyRef
             ? request$.pipe(takeUntilDestroyed(destroyRef))
@@ -41,7 +40,7 @@ export class HttpEntityRepositoryService<T> {
     }
 
     update(_url: string, _content: any, destroyRef?: DestroyRef): Observable<T> {
-        const request$ = this.httpClient.put<T>(environment.getApiUrl + _url, _content);
+        const request$ = this.httpClient.put<T>(environment.getApiUrl + _url, _content, { responseType: 'text' as 'json' });
 
         return destroyRef
             ? request$.pipe(takeUntilDestroyed(destroyRef))
@@ -49,7 +48,7 @@ export class HttpEntityRepositoryService<T> {
     }
 
     delete(_url: string, id: number, destroyRef?: DestroyRef): Observable<T> {
-        const request$ = this.httpClient.delete<T>(environment.getApiUrl + _url + id);
+        const request$ = this.httpClient.delete<T>(environment.getApiUrl + _url + id, { responseType: 'text' as 'json' });
 
         return destroyRef
             ? request$.pipe(takeUntilDestroyed(destroyRef))

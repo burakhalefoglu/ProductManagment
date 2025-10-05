@@ -16,7 +16,7 @@
 
                     <div class="col-md-3 mb-3">
                         <label for="unitPrice" class="form-label">{{ 'PRODUCT.PRICE' | translate }}</label>
-                        <input type="number" id="unitPrice" class="form-control" formControlName="unitPrice">
+                        <input step="0.01" type="number" id="unitPrice" class="form-control" formControlName="unitPrice" inputmode="decimal">
                         <div *ngIf="productForm.get('unitPrice')?.invalid && productForm.get('unitPrice')?.touched" class="text-danger small mt-1">
                             {{ 'VALIDATION.PRICE_INVALID' | translate }}
                         </div>
@@ -24,7 +24,7 @@
 
                     <div class="col-md-3 mb-3">
                         <label for="unitsInStock" class="form-label">{{ 'PRODUCT.STOCK' | translate }}</label>
-                        <input type="number" id="unitsInStock" class="form-control" formControlName="unitsInStock">
+                        <input step="1" type="number" id="unitsInStock" class="form-control" formControlName="unitsInStock" inputmode="numeric">
                         <div *ngIf="productForm.get('unitsInStock')?.invalid && productForm.get('unitsInStock')?.touched" class="text-danger small mt-1">
                             {{ 'VALIDATION.STOCK_INVALID' | translate }}
                         </div>

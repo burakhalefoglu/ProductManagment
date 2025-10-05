@@ -25,7 +25,7 @@ export class ProductAddComponent implements OnInit {
 
     constructor(private fb: FormBuilder,
                 private router: Router,
-                private productRepo: HttpEntityRepositoryService<Product>,
+                private productRepo: HttpEntityRepositoryService<string>,
                 private titleService: TitleService) {}
 
     ngOnInit(): void {
@@ -62,21 +62,29 @@ export class ProductAddComponent implements OnInit {
         this.colorsArray.removeAt(index);
     }
 
+    private toNumber(v: any): number | null {
+        if (v === null || v === undefined || v === '') return null;
+        if (typeof v === 'number') return v;
+        // "1.234,56" -> "1234.56"
+        const s = String(v).replace(/\./g, '').replace(',', '.');
+        const n = Number(s);
+        return isNaN(n) ? null : n;
+    }
+
     onSubmit(): void {
         if (this.productForm.valid) {
             console.log('Ürün Kayıt Ediliyor:', this.productForm.value);
-            const rawColors = this.productForm.value.colors.map((c: { colorName: string }) => c.colorName);
-            const finalProduct = new Product(
-                 0,
-                 this.productForm.value.name,
-                 this.productForm.value.unitPrice,
-                 this.productForm.value.unitsInStock,
-                 rawColors
-        );
-
+            const rawColors: any[] = this.productForm.value.colors;
+            const finalProduct = {
+                id: 0,
+                name: this.productForm.value.name?.trim(),
+                unitPrice: this.toNumber(this.productForm.value.unitPrice),
+                unitsInStock: this.toNumber(this.productForm.value.unitsInStock),
+                colors: rawColors.map(c => typeof c === 'string' ? { colorName: c } : { colorName: c.colorName })
+            };
         this.productRepo.add('/Products', finalProduct)
             .subscribe({
-                next: () => {
+                next: (res: string) => {
                     alert('Ürün başarıyla kaydedildi!');
                     this.router.navigate(['/app/products']);
                 },

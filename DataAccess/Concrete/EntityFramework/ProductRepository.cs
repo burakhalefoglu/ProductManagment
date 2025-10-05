@@ -31,7 +31,9 @@ namespace DataAccess.Concrete.EntityFramework
 
         public async Task<Product> GetWithColorAsync(Expression<Func<Product, bool>> expression = null)
         {
-            return await Context.Set<Product>().Include(p => p.Colors).AsQueryable().FirstOrDefaultAsync(expression);
+            return expression == null
+                ? await Context.Set<Product>().Include(p => p.Colors).FirstOrDefaultAsync()
+                : await Context.Set<Product>().Include(p => p.Colors).Where(expression).FirstOrDefaultAsync();
         }
     }
 }

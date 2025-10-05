@@ -93,7 +93,7 @@ export class ProductListComponent implements OnInit {
     }
 
     goToDetail(id: any) {
-        this.router.navigate(['/app/products/details/' + id]);
+        this.router.navigate(['/app/products/detail/' + id]);
     }
 
     openCreatePage() {

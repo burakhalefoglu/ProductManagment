@@ -43,6 +43,11 @@ export class ProductDetailComponent implements OnInit {
         this.productRepo.get('/Products/', this.productId, this.destroyRef)
             .subscribe({
                 next: (product) => {
+                    if (!product) {
+                        this.router.navigate(['/app/products']);
+                        return;
+                    }
+                    console.log(product);
                     this._product.set(product);
                     console.log('Ürün detayları yüklendi.');
                 },

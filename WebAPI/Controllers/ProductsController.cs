@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Product))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromQuery]int id)
+        public async Task<IActionResult> GetById([FromRoute]int id)
         {
             return GetResponseOnlyResultData(await Mediator.Send(new GetProductQuery { Id = id }));
         }

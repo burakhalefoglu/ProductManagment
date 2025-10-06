@@ -39,7 +39,7 @@ FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runner
 
 # Server bloğunu conf.d altına koy; 3000’den dinle
 USER root
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # Build çıktısını al (browser varsa onu; yoksa kökü)
 COPY --from=builder /app/dist /tmp/dist

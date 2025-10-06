@@ -1,16 +1,20 @@
-ARG NODE_VERSION=22.11.0-alpine   # 24 yerine 22 LTS
+# ---------- Build stage ----------
+ARG NODE_VERSION=22.11.0-alpine
 ARG NGINX_VERSION=alpine3.22
 
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-RUN npm i
+# Stabil npm
+RUN npm install -g @angular/cli 
 
+# 1) Sadece lock ve manifest dosyaları
 COPY package.json package-lock.json ./
 
-# Optional bağımlılıkları atla; audit/fund kapat
-RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund --omit=optional
+# 2) Deterministic kurulum
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=optional --no-audit --no-fund
 
+# 3) Uygulama kaynakları
 COPY . .
 
 # API_URL üret

@@ -38,7 +38,7 @@ FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runner
 
 # Config kopyalamak ve dosya izinlerini ayarlamak için root'a geç
 USER root
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/nginx.conf
 
 # Build çıktısını al
 COPY --from=builder /app/dist /tmp/dist

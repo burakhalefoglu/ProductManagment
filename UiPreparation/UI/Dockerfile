@@ -4,8 +4,7 @@ ARG NGINX_VERSION=alpine3.22
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-# NPM'i daha stabil bir sürüme sabitle (npm 10.8.x genelde sorunsuz)
-RUN npm i -g npm@10.8.3
+RUN npm i
 
 COPY package.json package-lock.json ./
 

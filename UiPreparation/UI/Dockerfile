@@ -62,8 +62,8 @@ RUN set -e; \
 # Non-root'a geri dön
 USER nginx
 
-# nginx-unprivileged 8080'de dinler
-EXPOSE 8080
+# nginx-unprivileged 3000'de dinler
+EXPOSE 3000
 
 ENTRYPOINT ["nginx", "-c", "/etc/nginx/nginx.conf"]
 CMD ["-g", "daemon off;"]

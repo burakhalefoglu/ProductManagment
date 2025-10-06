@@ -1,25 +1,28 @@
-# =========================================
-# Stage 1: Build (Node 24 + npm)
-# =========================================
-ARG NODE_VERSION=24.9.0-alpine
+# ============================
+# Stage 1: Build (Node 20 + npm10)
+# ============================
+ARG NODE_VERSION=20-alpine
 ARG NGINX_VERSION=alpine3.22
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-# Native build araçları + CA
+# Gerekli araçlar + CA
 RUN apk add --no-cache python3 make g++ git ca-certificates
 
-# npm daha stabil/temiz çıktılar
-RUN npm config set fund false \
+# npm 10'a pinle (npm 11 hatasını atla) + ağ ayarları
+RUN npm i -g npm@10.7.0 \
+ && npm config set fund false \
  && npm config set audit false \
- && npm config set progress false
+ && npm config set progress false \
+ && npm config set fetch-retries 5 \
+ && npm config set fetch-retry-maxtimeout 120000 \
+ && npm config set fetch-timeout 120000
 
-# Sadece manifestleri kopyala ve deterministik kurulum
-# (package-lock.json şart. Yoksa lokalde `npm i --package-lock-only` ile üret)
+# Deterministik kurulum (package-lock.json zorunlu)
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci --legacy-peer-deps
 
-# Kaynakları kopyala
+# Kaynaklar
 COPY . .
 
 # API URL (API_URL > URL > default)
@@ -27,25 +30,22 @@ ARG URL
 ARG API_URL
 ENV API_URL_EFFECTIVE=${API_URL:-${URL:-https://localhost:5001/api/v1}}
 
-# env prod dosyasını şablondan üret
-# (projende: src/environments/environment.prod.template.ts içinde __API_URL__ placeholder’ı olmalı)
+# env prod dosyasını üret (template içindeki __API_URL__ yerini doldur)
 RUN cp src/environments/environment.prod.template.ts src/environments/environment.prod.ts \
  && sed -i "s#__API_URL__#${API_URL_EFFECTIVE}#g" src/environments/environment.prod.ts
 
-# Angular prod build
-# CLI devDependencies'teyse direkt npx ile kullan
-RUN npx ng build --configuration production
+# Angular 20 ile prod build (lokal CLI yoksa 20'yi kullan)
+RUN npx -y @angular/cli@20 ng build --configuration production
 
-# =========================================
+# ============================
 # Stage 2: Runtime (nginx-unprivileged, 3000)
-# =========================================
+# ============================
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runner
 
 USER root
-# SPA fallback + opsiyonel healthz ekleyebilirsin
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-# dist/<proj>/browser varsa onu, yoksa kökü kopyala
+# dist/<proj>/browser varsa onu, yoksa fallback
 COPY --from=builder /app/dist /tmp/dist
 RUN set -e; \
     mkdir -p /usr/share/nginx/html; \

@@ -1,22 +1,29 @@
+### 1) Angular Build
 FROM node:20-alpine AS build
-
 WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
 COPY . .
 
+# Build arg (opsiyonel). Arg gelmezse varsayılan ver.
 ARG URL
-ENV API_URL=${URL:-https://localhost:5001/api/v1}
+ARG API_URL
+ENV API_URL_EFFECTIVE=${API_URL:-${URL:-https://localhost:5001/api/v1}}
 
-RUN npm install -g @angular/cli
-RUN npm install
+# sed ile __API_URL__ -> ${API_URL_EFFECTIVE}
+RUN cp src/environments/environment.prod.template.ts src/environments/environment.prod.ts && \
+    sed -i "s#__API_URL__#${API_URL_EFFECTIVE}#g" src/environments/environment.prod.ts
 
-RUN sed -i "s#__API_URL__#${API_URL}#g" src/environments/environment.ts
+# Prod build
+RUN npx ng build --configuration production
 
-RUN ng build --configuration production
-
+### 2) Nginx Serve
 FROM nginx:alpine
 RUN apk add --no-cache curl
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist/product-dashboard-angular/browser /usr/share/nginx/html
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 3000

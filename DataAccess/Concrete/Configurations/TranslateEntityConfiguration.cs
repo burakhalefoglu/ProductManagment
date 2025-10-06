@@ -304,7 +304,31 @@ namespace DataAccess.Concrete.Configurations
                 new Translate { Id = 227, LangId = 2, Code = "Status",        Value = "Status" },
                 new Translate { Id = 228, LangId = 2, Code = "MobilePhones",  Value = "Mobile Phones" },
                 new Translate { Id = 229, LangId = 2, Code = "Address",       Value = "Address" },
-                new Translate { Id = 230, LangId = 2, Code = "Notes",         Value = "Notes" }
+                new Translate { Id = 230, LangId = 2, Code = "Notes",         Value = "Notes" },
+
+                new Translate { Id = 231, LangId = 1, Code = "Products",         Value = "Ürünler" },
+                new Translate { Id = 232, LangId = 2, Code = "Products",         Value = "Products" },
+
+                new Translate { Id = 233, LangId = 1, Code = "Product Add",         Value = "Ürün Ekle" },
+                new Translate { Id = 234, LangId = 2, Code = "Product Add",         Value = "Product Add" },
+
+                new Translate { Id = 235, LangId = 1, Code = "Product Detail",         Value = "Ürün Ayrıntıları" },
+                new Translate { Id = 236, LangId = 2, Code = "Product Detail",         Value = "Product Details" },
+
+                new Translate { Id = 237, LangId = 1, Code = "Product Detail",         Value = "Ürün Güncelle" },
+                new Translate { Id = 238, LangId = 2, Code = "Product Detail",         Value = "Product Update" },
+
+                new Translate { Id = 239, LangId = 1, Code = "Operation Claim", Value = "Yetki" },
+                new Translate { Id = 240, LangId = 2, Code = "Operation Claim", Value = "Operation Claim" },
+
+                new Translate { Id = 241, LangId = 1, Code = "Languages", Value = "Diller" },
+                new Translate { Id = 242, LangId = 2, Code = "Languages", Value = "Languages" },
+
+                new Translate { Id = 243, LangId = 1, Code = "Translations", Value = "Çeviriler" },
+                new Translate { Id = 244, LangId = 2, Code = "Translations", Value = "Translations" },
+
+                new Translate { Id = 245, LangId = 1, Code = "Logs", Value = "İzleme Kayıtları" },
+                new Translate { Id = 246, LangId = 2, Code = "Logs", Value = "Logs" },
 
             };
         }

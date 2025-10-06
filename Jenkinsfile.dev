@@ -5,7 +5,7 @@ pipeline {
         // 🔧 Proje Bilgileri
         PROJECT_NAME = "ProductManagment"
         GIT_REPO_URL = "https://github.com/burakhalefoglu/ProductManagment.git"
-        GIT_CREDENTIALS_ID = "github-pat"
+        GIT_CREDENTIALS_ID = "github-personel"
 
         // 🚀 Servis İsimleri
         SERVICE_API = "api_product_management_dev"

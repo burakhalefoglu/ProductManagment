@@ -7,17 +7,14 @@ ARG NGINX_VERSION=alpine3.22
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-# Derleme için gerekli native araçlar (Alpine)
+# Native modüller için (gerekli)
 RUN apk add --no-cache python3 make g++ git
-
-# Versiyonları logla (ağ gerektirmez) -> engines doğrulaması
-RUN node -v && npm -v
 
 # Sadece manifestleri kopyala (cache verimi)
 COPY package.json package-lock.json ./
 
-# Dokümantasyon stili: BuildKit cache + npm ci (EKSTRA BAYRAK YOK)
-RUN --mount=type=cache,target=/root/.npm npm ci
+# NPM 11'in "Exit handler never called!" hatasını baypas etmek için npm ci yerine npm install
+RUN --mount=type=cache,target=/root/.npm npm install
 
 # Uygulama kaynakları
 COPY . .
@@ -27,11 +24,11 @@ ARG URL
 ARG API_URL
 ENV API_URL_EFFECTIVE=${API_URL:-${URL:-https://localhost:5001/api/v1}}
 
-# environment.prod.ts üret
+# Prod env üret
 RUN cp src/environments/environment.prod.template.ts src/environments/environment.prod.ts \
  && sed -i "s#__API_URL__#${API_URL_EFFECTIVE}#g" src/environments/environment.prod.ts
 
-# Prod build (package.json -> "build": "ng build")
+# Prod build
 RUN npm run build -- --configuration production
 
 
@@ -40,15 +37,11 @@ RUN npm run build -- --configuration production
 # =========================================
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runner
 
-# Non-root kullanıcı (nginx) ile çalışacağız
-USER nginx
-
-# Özel nginx.conf varsa kopyala
-COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
-
-# Angular 17/18'de bazen dist/<proj>/browser oluşur; yoksa kök kopyalanır
-# Güvenli kopyalama için önce geçici dizine alıp sonra koşullu kopyala
+# Server bloğunu conf.d altına koy; 3000’den dinle
 USER root
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+# Build çıktısını al (browser varsa onu; yoksa kökü)
 COPY --from=builder /app/dist /tmp/dist
 RUN set -e; \
     mkdir -p /usr/share/nginx/html; \
@@ -59,11 +52,6 @@ RUN set -e; \
     fi; \
     chown -R 101:101 /usr/share/nginx/html
 
-# Non-root'a geri dön
 USER nginx
-
-# nginx-unprivileged 3000'de dinler
 EXPOSE 3000
-
-ENTRYPOINT ["nginx", "-c", "/etc/nginx/nginx.conf"]
-CMD ["-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

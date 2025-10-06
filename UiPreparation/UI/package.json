@@ -11,7 +11,10 @@
     "e2e": "ng e2e",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && ng serve -o"
   },
-  "engines": { "node": ">=22 <25", "npm": ">=10 <12" },
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10 <12"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "20.3.3",
